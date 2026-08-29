@@ -3,6 +3,22 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Merca Digital brand — sampled from the source logo, not approximated */
+  --md-teal: #1da9b7;
+  --md-gold: #e8b708;
+  --md-red: #fa171f;
+  --md-blue: #076fa7;
+
+  /* Panel chassis (the marketing site's own world) */
+  --panel-chassis: #121417;
+  --panel-chassis-raised: #1b1e23;
+  --panel-plate: #191c20;
+  --panel-bezel-light: rgba(255, 255, 255, 0.08);
+  --panel-bezel-dark: rgba(0, 0, 0, 0.55);
+  --panel-rivet: rgba(255, 255, 255, 0.14);
+  --panel-ink: #eef1f3;
+  --panel-ink-dim: #9aa3ab;
 }
 
 @theme inline {
@@ -10,17 +26,157 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-panel-display: var(--font-panel-display);
+  --font-panel-mono: var(--font-panel-mono);
+  --color-md-teal: var(--md-teal);
+  --color-md-gold: var(--md-gold);
+  --color-md-red: var(--md-red);
+  --color-md-blue: var(--md-blue);
+  --color-panel-chassis: var(--panel-chassis);
+  --color-panel-plate: var(--panel-plate);
+  --color-panel-ink: var(--panel-ink);
+  --color-panel-ink-dim: var(--panel-ink-dim);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* The whole site is a light-only product by design (see DESIGN.md) — no
+   dark-mode override. A previous version flipped --foreground to near-white
+   here, which silently made form text invisible on white cards for any
+   visitor with a dark OS preference (hit twice before this was removed). */
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Internal staff admin (/admin/**): deliberately plain/utilitarian per
+   DESIGN.md, not the dark panel-chassis world — but still one consistent,
+   branded control vocabulary rather than unstyled browser defaults. */
+@layer components {
+  .admin-panel input:not([type="hidden"]),
+  .admin-panel select {
+    @apply rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900;
+  }
+
+  .admin-panel input:not([type="hidden"]):focus-visible,
+  .admin-panel select:focus-visible,
+  .admin-panel button:focus-visible,
+  .admin-panel a:focus-visible {
+    @apply outline-none ring-2 ring-md-teal/40 ring-offset-1;
+  }
+
+  /* Subtle dot-grid texture for the two "special" dark accent cards
+     (sidebar footer, conversation-activity widget) — CSS only, no image. */
+  .admin-dark-pattern {
+    background-image: radial-gradient(
+      rgba(255, 255, 255, 0.08) 1px,
+      transparent 1px
+    );
+    background-size: 14px 14px;
+  }
+
+  /* Diagonal-stripe fill for a zero-value bar in the activity chart —
+     honestly shows "no data that day" rather than hiding or faking a bar. */
+  .admin-stripe-empty {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.14) 0,
+      rgba(255, 255, 255, 0.14) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+  }
+
+  .admin-panel table tbody tr {
+    @apply transition-colors;
+  }
+
+  .admin-panel table tbody tr:hover {
+    @apply bg-gray-50;
+  }
+}
+
+/* Panel world: pilot-light glow, gauge sweep, power-on sequence.
+   Respects reduced-motion; the panel simply appears already lit. */
+@keyframes pilot-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 0.55;
+  }
+  96% {
+    opacity: 1;
+  }
+}
+
+@keyframes panel-power-on {
+  from {
+    opacity: 0;
+    filter: brightness(0.4) saturate(0.6);
+  }
+  to {
+    opacity: 1;
+    filter: brightness(1) saturate(1);
+  }
+}
+
+.panel-power-on {
+  animation: panel-power-on 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.pilot-light {
+  animation: pilot-flicker 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-power-on,
+  .pilot-light {
+    animation: none !important;
+  }
+}
+
+/* Chassis texture: brushed diagonal grain + top vignette, applied once at
+   the page wrapper so the whole scroll reads as one physical panel instead
+   of an isolated hero over flat sections. */
+.panel-chassis-texture {
+  position: relative;
+}
+
+.panel-chassis-texture::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+      ellipse 1400px 700px at 50% -12%,
+      rgba(255, 255, 255, 0.05),
+      transparent 60%
+    ),
+    repeating-linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.018) 0px,
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+}
+
+.panel-chassis-texture > * {
+  position: relative;
+  z-index: 1;
+}
+
+.spec-plate {
+  font-family: var(--font-panel-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--panel-ink-dim);
+  opacity: 0.55;
 }
