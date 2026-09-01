@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, or } from "drizzle-orm";
 import Link from "next/link";
 import { CLIENT_STATUS_META } from "@/app/dashboard/status";
 import { EditToggle } from "@/components/admin/EditToggle";
@@ -19,15 +19,23 @@ const STATUS_OPTIONS = Object.entries(CLIENT_STATUS_META).map(
   ([value, meta]) => ({ value, label: meta.label })
 );
 
+const PAGE_SIZE = 25;
+
 export default async function AdminClientsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; planId?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    status?: string;
+    planId?: string;
+    page?: string;
+  }>;
 }) {
   await requireStaffOrRedirect("/admin/clients");
 
-  const { q, status, planId } = await searchParams;
+  const { q, status, planId, page: pageRaw } = await searchParams;
   const search = q?.trim() ?? "";
+  const page = Math.max(1, Number(pageRaw) || 1);
 
   const filters = [
     search
@@ -50,17 +58,34 @@ export default async function AdminClientsPage({
     planId ? eq(clients.planId, planId) : undefined,
   ].filter((f) => f !== undefined);
 
-  const [allClients, allPlans] = await Promise.all([
+  const whereClause = filters.length > 0 ? and(...filters) : undefined;
+
+  const [allClients, allPlans, [{ total }]] = await Promise.all([
     withAppUser((tx) =>
       tx.query.clients.findMany({
-        where: filters.length > 0 ? and(...filters) : undefined,
+        where: whereClause,
         orderBy: [desc(clients.createdAt)],
+        limit: PAGE_SIZE,
+        offset: (page - 1) * PAGE_SIZE,
       })
     ),
     withAppUser((tx) =>
       tx.query.plans.findMany({ orderBy: [asc(plans.name)] })
     ),
+    withAppUser((tx) =>
+      tx.select({ total: count() }).from(clients).where(whereClause)
+    ),
   ]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageQuery = (targetPage: number) => {
+    const params = new URLSearchParams();
+    if (search) params.set("q", search);
+    if (status) params.set("status", status);
+    if (planId) params.set("planId", planId);
+    params.set("page", String(targetPage));
+    return `/admin/clients?${params.toString()}`;
+  };
 
   const planOptions = [
     { value: "", label: "Sin plan" },
@@ -278,6 +303,32 @@ export default async function AdminClientsPage({
             </tbody>
           </table>
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between text-sm text-gray-500">
+            <span>
+              Página {page} de {totalPages} · {total} cliente{total === 1 ? "" : "s"}
+            </span>
+            <div className="flex gap-2">
+              {page > 1 && (
+                <Link
+                  href={pageQuery(page - 1)}
+                  className="rounded-full border border-gray-300 px-3 py-1.5 text-xs text-gray-700 transition-colors hover:bg-gray-100"
+                >
+                  ← Anterior
+                </Link>
+              )}
+              {page < totalPages && (
+                <Link
+                  href={pageQuery(page + 1)}
+                  className="rounded-full border border-gray-300 px-3 py-1.5 text-xs text-gray-700 transition-colors hover:bg-gray-100"
+                >
+                  Siguiente →
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

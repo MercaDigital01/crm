@@ -1,8 +1,8 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, gte } from "drizzle-orm";
 import { ArrowUpRight, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { CLIENT_STATUS_META } from "@/app/dashboard/status";
-import { clients, whatsappEvents } from "@/db/schema";
+import { campaignStats, clients, whatsappEvents } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { requireStaffOrRedirect } from "@/lib/staff";
 
@@ -102,13 +102,27 @@ function ActivityChart({ counts }: { counts: number[] }) {
 export default async function AdminResumenPage() {
   await requireStaffOrRedirect("/admin");
 
+  // Bounded windows instead of full-table loads: whatsapp_events and
+  // campaign_stats grow unboundedly over time (unlike clients/campaigns,
+  // which grow slowly with roster size) — 14 days covers both the 7-day
+  // activity chart and the 14-day "quiet client" check; 30 days covers
+  // both the 7-day "stale campaign" check and the 30-day rollup table.
+  const now = new Date().getTime();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const fourteenDaysAgo = new Date(now - 14 * DAY_MS);
+  const thirtyDaysAgoDate = new Date(now - 30 * DAY_MS);
+
   const [allClients, allCampaigns, allEvents, recentEvents, allStats] =
     await Promise.all([
       withAppUser((tx) =>
         tx.query.clients.findMany({ orderBy: [desc(clients.createdAt)] })
       ),
       withAppUser((tx) => tx.query.campaigns.findMany()),
-      withAppUser((tx) => tx.query.whatsappEvents.findMany()),
+      withAppUser((tx) =>
+        tx.query.whatsappEvents.findMany({
+          where: gte(whatsappEvents.occurredAt, fourteenDaysAgo),
+        })
+      ),
       withAppUser((tx) =>
         tx
           .select({
@@ -123,13 +137,15 @@ export default async function AdminResumenPage() {
           .orderBy(desc(whatsappEvents.occurredAt))
           .limit(5)
       ),
-      withAppUser((tx) => tx.query.campaignStats.findMany()),
+      withAppUser((tx) =>
+        tx.query.campaignStats.findMany({
+          where: gte(campaignStats.statDate, thirtyDaysAgoDate.toISOString().slice(0, 10)),
+        })
+      ),
     ]);
 
   // Alerts: clients needing follow-up, stale campaigns, quiet clients —
   // real derived lists, not just counts.
-  const now = new Date().getTime();
-  const DAY_MS = 24 * 60 * 60 * 1000;
   const clientById = new Map(allClients.map((c) => [c.id, c]));
   const campaignById = new Map(allCampaigns.map((c) => [c.id, c]));
 
@@ -167,14 +183,13 @@ export default async function AdminResumenPage() {
   );
 
   // Aggregated reporting: last-30-days spend/clicks/impressions per client,
-  // blended CTR, sorted by spend desc.
-  const thirtyDaysAgo = now - 30 * DAY_MS;
+  // blended CTR, sorted by spend desc. allStats is already scoped to the
+  // last 30 days at the query level, so no extra date filter needed here.
   const rollupByClient = new Map<
     string,
     { impressions: number; clicks: number; spendMxnCents: number }
   >();
   for (const stat of allStats) {
-    if (new Date(stat.statDate).getTime() < thirtyDaysAgo) continue;
     const campaign = campaignById.get(stat.campaignId);
     if (!campaign) continue;
     const entry = rollupByClient.get(campaign.clientId) ?? {

@@ -38,13 +38,22 @@ const STATUS_PILL = {
 
 const CARD_SHADOW = "shadow-[0_2px_10px_rgba(0,0,0,0.02)]";
 
+const ACTIVITY_PAGE_SIZE = 20;
+
 export default async function AdminClientDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ activityLimit?: string }>;
 }) {
   await requireStaffOrRedirect("/admin/clients");
   const { id } = await params;
+  const { activityLimit: activityLimitRaw } = await searchParams;
+  const activityLimit = Math.max(
+    ACTIVITY_PAGE_SIZE,
+    Number(activityLimitRaw) || ACTIVITY_PAGE_SIZE
+  );
 
   const [client, allPlans] = await Promise.all([
     withAppUser((tx) => tx.query.clients.findFirst({ where: eq(clients.id, id) })),
@@ -67,10 +76,13 @@ export default async function AdminClientDetailPage({
         tx.query.activityLog.findMany({
           where: eq(activityLog.entityId, client.id),
           orderBy: [desc(activityLog.createdAt)],
-          limit: 20,
+          limit: activityLimit + 1, // +1 to detect "more exist" without a count query
         })
       ),
     ]);
+
+  const hasMoreActivity = recentActivity.length > activityLimit;
+  const visibleActivity = recentActivity.slice(0, activityLimit);
 
   const pendingRequests =
     contentReqs.filter((r) => r.status === "pendiente").length +
@@ -343,12 +355,12 @@ export default async function AdminClientDetailPage({
           Actividad reciente en el perfil
         </summary>
         <div className="mt-4 flex flex-col gap-3">
-          {recentActivity.length === 0 ? (
+          {visibleActivity.length === 0 ? (
             <p className="text-sm text-gray-500">
               Sin cambios registrados directamente sobre este perfil todavía.
             </p>
           ) : (
-            recentActivity.map((entry) => (
+            visibleActivity.map((entry) => (
               <div key={entry.id} className="flex items-center justify-between border-t border-gray-100 pt-3 text-sm">
                 <span className="text-gray-700">{entry.summary}</span>
                 <span className="text-xs text-gray-400">
@@ -357,6 +369,14 @@ export default async function AdminClientDetailPage({
                 </span>
               </div>
             ))
+          )}
+          {hasMoreActivity && (
+            <Link
+              href={`/admin/clients/${client.id}?activityLimit=${activityLimit + ACTIVITY_PAGE_SIZE}`}
+              className="mt-1 w-fit text-xs font-medium text-md-teal hover:underline"
+            >
+              Ver más →
+            </Link>
           )}
         </div>
       </details>
