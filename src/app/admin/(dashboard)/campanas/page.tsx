@@ -7,6 +7,7 @@ import { clients } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { requireStaffOrRedirect } from "@/lib/staff";
 import {
+  bulkImportCampaignStats,
   createCampaign,
   createCampaignStat,
   deleteCampaign,
@@ -398,6 +399,28 @@ export default async function AdminCampanasPage({
                       Registrar estadística
                     </button>
                   </form>
+
+                  <details className="mt-3 border-t border-gray-100 pt-3">
+                    <summary className="cursor-pointer text-xs font-medium text-md-teal">
+                      Importar CSV (varias filas de una vez)
+                    </summary>
+                    <form action={bulkImportCampaignStats} className="mt-3 flex flex-col gap-2">
+                      <input type="hidden" name="campaignId" value={campaign.id} />
+                      <textarea
+                        name="csv"
+                        required
+                        rows={4}
+                        placeholder={"fecha,impresiones,clics,gasto,conversiones\n2026-01-01,1200,34,150.00,2"}
+                        className="rounded border border-gray-300 px-3 py-2 font-mono text-xs"
+                      />
+                      <button
+                        type="submit"
+                        className="w-fit rounded-full border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100"
+                      >
+                        Importar
+                      </button>
+                    </form>
+                  </details>
                 </div>
               ))
             )}

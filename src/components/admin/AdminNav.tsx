@@ -11,6 +11,7 @@ const TABS = [
   { href: "/admin/conversaciones", label: "Conversaciones", exact: false },
   { href: "/admin/calendario", label: "Calendario", exact: false },
   { href: "/admin/soporte", label: "Bitácora", exact: false },
+  { href: "/admin/staff", label: "Staff", exact: false },
 ] as const;
 
 export function AdminNav() {

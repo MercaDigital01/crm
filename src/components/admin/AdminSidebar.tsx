@@ -7,6 +7,7 @@ import {
   Megaphone,
   MessageCircle,
   Package,
+  ShieldCheck,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -51,6 +52,12 @@ const NAV_GROUPS = [
         href: "/admin/soporte",
         label: "Bitácora",
         icon: ClipboardList,
+        exact: false,
+      },
+      {
+        href: "/admin/staff",
+        label: "Staff",
+        icon: ShieldCheck,
         exact: false,
       },
     ],

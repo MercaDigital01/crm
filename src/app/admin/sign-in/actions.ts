@@ -1,6 +1,9 @@
 "use server";
 
+import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { db } from "@/db";
+import { staffUsers } from "@/db/schema";
 import {
   clearAdminSession,
   createAdminSession,
@@ -21,19 +24,17 @@ export async function signInAdmin(formData: FormData) {
     formData.get("redirectTo") ? String(formData.get("redirectTo")) : null
   );
 
-  const expectedUsername = process.env.ADMIN_USERNAME;
-  const expectedPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+  // No identity exists yet at this point (that's what we're establishing),
+  // so this reads via the raw `db` export bypassing RLS — same precedent
+  // as claimUnclaimedProfile in src/app/dashboard/data.ts.
+  const staffAccount = await db.query.staffUsers.findFirst({
+    where: eq(staffUsers.username, username),
+  });
 
-  if (!expectedUsername || !expectedPasswordHash) {
-    throw new Error(
-      "Falta configurar ADMIN_USERNAME / ADMIN_PASSWORD_HASH en .env.local"
-    );
-  }
+  const validPassword =
+    !!staffAccount && verifyPassword(password, staffAccount.passwordHash);
 
-  const validUsername = username === expectedUsername;
-  const validPassword = verifyPassword(password, expectedPasswordHash);
-
-  if (!validUsername || !validPassword) {
+  if (!staffAccount || !validPassword) {
     redirect(
       `/admin/sign-in?error=1&redirect_url=${encodeURIComponent(redirectTo)}`
     );

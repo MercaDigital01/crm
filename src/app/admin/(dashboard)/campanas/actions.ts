@@ -137,6 +137,53 @@ export async function duplicateCampaign(formData: FormData) {
   revalidatePath("/admin/campanas");
 }
 
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export async function bulkImportCampaignStats(formData: FormData) {
+  if (!(await isStaffUser())) {
+    throw new Error("No autorizado");
+  }
+
+  const campaignId = String(formData.get("campaignId") ?? "");
+  const csv = String(formData.get("csv") ?? "");
+  if (!campaignId || !csv.trim()) {
+    throw new Error("Falta el CSV a importar");
+  }
+
+  const rows = csv
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => line.split(",").map((cell) => cell.trim()))
+    .filter((cells) => DATE_RE.test(cells[0] ?? "")); // skips a header row
+
+  if (rows.length === 0) {
+    throw new Error(
+      "No se encontraron filas válidas (formato: fecha,impresiones,clics,gasto,conversiones — fecha AAAA-MM-DD)"
+    );
+  }
+
+  const values = rows.map(([statDate, impressions, clicks, spend, conversions]) => ({
+    campaignId,
+    statDate,
+    impressions: Number(impressions) || 0,
+    clicks: Number(clicks) || 0,
+    spendMxnCents: Math.round((Number(spend) || 0) * 100),
+    conversions: Number(conversions) || 0,
+  }));
+
+  await withAppUser((tx) => tx.insert(campaignStats).values(values));
+
+  await logActivity({
+    action: "bulk_import",
+    entityType: "campaign_stat",
+    entityId: campaignId,
+    summary: `Importó ${values.length} estadísticas por CSV`,
+  });
+
+  revalidatePath("/admin/campanas");
+}
+
 export async function updateCampaignStat(formData: FormData) {
   if (!(await isStaffUser())) {
     throw new Error("No autorizado");

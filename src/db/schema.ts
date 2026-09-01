@@ -484,6 +484,34 @@ export const clientTasks = pgTable(
   ]
 );
 
+// Named per-person staff accounts, replacing the single shared
+// ADMIN_USERNAME/ADMIN_PASSWORD_HASH env-var credential. No permission
+// tiers — anyone with a row here has full staff access, matching today's
+// one-agency reality (see src/lib/admin-session.ts for the session/cookie
+// mechanism, which is unchanged). The sign-in lookup itself bypasses RLS
+// via the raw `db` export (src/db/index.ts) since no identity exists yet
+// at that point — same precedent as claimUnclaimedProfile in
+// src/app/dashboard/data.ts.
+export const staffUsers = pgTable(
+  "staff_users",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    username: text("username").notNull().unique(),
+    passwordHash: text("password_hash").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  () => [
+    pgPolicy("staff_users_staff_only", {
+      for: "all",
+      to: appRuntime,
+      using: sql`current_setting('app.is_staff', true) = 'true'`,
+      withCheck: sql`current_setting('app.is_staff', true) = 'true'`,
+    }),
+  ]
+);
+
 // Vista de Soporte audit trail (docs/terminos-de-servicio.md §10.2). Staff-only
 // by design — no "own row" policy exists here, a client must never be able to
 // read who accessed their account.
