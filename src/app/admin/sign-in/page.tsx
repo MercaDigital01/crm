@@ -51,7 +51,13 @@ export default async function AdminSignInPage({
 
         <input type="hidden" name="redirectTo" value={returnPath} />
 
-        {error && (
+        {error === "locked" && (
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            Cuenta bloqueada temporalmente por varios intentos fallidos.
+            Intenta de nuevo en unos minutos.
+          </p>
+        )}
+        {error && error !== "locked" && (
           <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
             Usuario o contraseña incorrectos.
           </p>

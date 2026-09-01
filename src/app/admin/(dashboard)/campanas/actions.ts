@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { campaignStats, campaigns } from "@/db/schema";
+import { campaignStats, campaigns, clients } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { logActivity } from "@/lib/activity-log";
 import { isStaffUser } from "@/lib/staff";
@@ -120,11 +120,19 @@ export async function duplicateCampaign(formData: FormData) {
     throw new Error("Falta el cliente destino");
   }
 
-  const source = await withAppUser((tx) =>
-    tx.query.campaigns.findFirst({ where: eq(campaigns.id, campaignId) })
-  );
+  const [source, targetClient] = await Promise.all([
+    withAppUser((tx) =>
+      tx.query.campaigns.findFirst({ where: eq(campaigns.id, campaignId) })
+    ),
+    withAppUser((tx) =>
+      tx.query.clients.findFirst({ where: eq(clients.id, targetClientId) })
+    ),
+  ]);
   if (!source) {
     throw new Error("Campaña no encontrada");
+  }
+  if (!targetClient) {
+    throw new Error("El cliente destino ya no existe");
   }
 
   await withAppUser((tx) =>
@@ -147,6 +155,7 @@ export async function duplicateCampaign(formData: FormData) {
 }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const MAX_CSV_ROWS = 366;
 
 export async function bulkImportCampaignStats(formData: FormData) {
   if (!(await isStaffUser())) {
@@ -171,14 +180,20 @@ export async function bulkImportCampaignStats(formData: FormData) {
       "No se encontraron filas válidas (formato: fecha,impresiones,clics,gasto,conversiones — fecha AAAA-MM-DD)"
     );
   }
+  if (rows.length > MAX_CSV_ROWS) {
+    throw new Error(
+      `El CSV tiene ${rows.length} filas — el máximo por importación es ${MAX_CSV_ROWS} (un año). Divídelo en partes más chicas.`
+    );
+  }
 
+  const nonNegative = (n: unknown) => Math.max(0, Number(n) || 0);
   const values = rows.map(([statDate, impressions, clicks, spend, conversions]) => ({
     campaignId,
     statDate,
-    impressions: Number(impressions) || 0,
-    clicks: Number(clicks) || 0,
-    spendMxnCents: Math.round((Number(spend) || 0) * 100),
-    conversions: Number(conversions) || 0,
+    impressions: Math.round(nonNegative(impressions)),
+    clicks: Math.round(nonNegative(clicks)),
+    spendMxnCents: Math.round(nonNegative(spend) * 100),
+    conversions: Math.round(nonNegative(conversions)),
   }));
 
   try {

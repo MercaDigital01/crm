@@ -10,6 +10,9 @@ import {
   verifyPassword,
 } from "@/lib/admin-session";
 
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_MS = 15 * 60 * 1000;
+
 function safeRedirectPath(path: string | null): string {
   // Only allow relative paths back into /admin — never an absolute URL, to
   // avoid this becoming an open redirect.
@@ -31,14 +34,41 @@ export async function signInAdmin(formData: FormData) {
     where: eq(staffUsers.username, username),
   });
 
+  if (
+    staffAccount?.lockedUntil &&
+    staffAccount.lockedUntil.getTime() > Date.now()
+  ) {
+    redirect(
+      `/admin/sign-in?error=locked&redirect_url=${encodeURIComponent(redirectTo)}`
+    );
+  }
+
   const validPassword =
     !!staffAccount && verifyPassword(password, staffAccount.passwordHash);
 
   if (!staffAccount || !validPassword) {
+    if (staffAccount) {
+      const attempts = staffAccount.failedAttempts + 1;
+      await db
+        .update(staffUsers)
+        .set({
+          failedAttempts: attempts,
+          lockedUntil:
+            attempts >= MAX_FAILED_ATTEMPTS
+              ? new Date(Date.now() + LOCKOUT_MS)
+              : null,
+        })
+        .where(eq(staffUsers.id, staffAccount.id));
+    }
     redirect(
       `/admin/sign-in?error=1&redirect_url=${encodeURIComponent(redirectTo)}`
     );
   }
+
+  await db
+    .update(staffUsers)
+    .set({ failedAttempts: 0, lockedUntil: null })
+    .where(eq(staffUsers.id, staffAccount.id));
 
   await createAdminSession(username);
   redirect(redirectTo);

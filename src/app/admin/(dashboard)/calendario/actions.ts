@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { contentItems } from "@/db/schema";
+import { clients, contentItems } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { logActivity } from "@/lib/activity-log";
 import { isStaffUser } from "@/lib/staff";
@@ -62,11 +62,19 @@ export async function duplicateContentItem(formData: FormData) {
     throw new Error("Falta el cliente destino");
   }
 
-  const source = await withAppUser((tx) =>
-    tx.query.contentItems.findFirst({ where: eq(contentItems.id, itemId) })
-  );
+  const [source, targetClient] = await Promise.all([
+    withAppUser((tx) =>
+      tx.query.contentItems.findFirst({ where: eq(contentItems.id, itemId) })
+    ),
+    withAppUser((tx) =>
+      tx.query.clients.findFirst({ where: eq(clients.id, targetClientId) })
+    ),
+  ]);
   if (!source) {
     throw new Error("Contenido no encontrado");
+  }
+  if (!targetClient) {
+    throw new Error("El cliente destino ya no existe");
   }
 
   await withAppUser((tx) =>
