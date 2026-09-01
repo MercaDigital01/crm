@@ -11,6 +11,7 @@ import {
   real,
   text,
   timestamp,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -142,6 +143,10 @@ export const campaignStats = pgTable(
       .defaultNow(),
   },
   (table) => [
+    unique("campaign_stats_campaign_date_unique").on(
+      table.campaignId,
+      table.statDate
+    ),
     pgPolicy("campaign_stats_own_client", {
       for: "all",
       to: appRuntime,

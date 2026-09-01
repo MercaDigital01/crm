@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { contentRequests } from "@/db/schema";
 import { withAppUser } from "@/db/session";
+import { logActivity } from "@/lib/activity-log";
 import { getViewedClient } from "../data";
 
 export async function createContentRequest(formData: FormData) {
@@ -27,6 +28,13 @@ export async function createContentRequest(formData: FormData) {
       notes: notes || null,
     })
   );
+
+  await logActivity({
+    action: "create",
+    entityType: "content_request",
+    entityId: client.id,
+    summary: `${client.businessName} propuso una idea de contenido: "${title}"`,
+  });
 
   revalidatePath("/dashboard/calendario");
 }

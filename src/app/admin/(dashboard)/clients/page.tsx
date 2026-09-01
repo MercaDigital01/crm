@@ -175,6 +175,7 @@ export default async function AdminClientsPage({
                 <tr key={client.id}>
                   <td className="min-w-[16rem] px-4 py-3">
                     <EditToggle
+                      key={JSON.stringify(client)}
                       view={
                         <div>
                           <Link

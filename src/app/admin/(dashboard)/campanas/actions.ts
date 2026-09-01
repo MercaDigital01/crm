@@ -7,6 +7,15 @@ import { withAppUser } from "@/db/session";
 import { logActivity } from "@/lib/activity-log";
 import { isStaffUser } from "@/lib/staff";
 
+function isUniqueViolation(e: unknown): boolean {
+  return (
+    typeof e === "object" &&
+    e !== null &&
+    "code" in e &&
+    (e as { code?: string }).code === "23505"
+  );
+}
+
 export async function createCampaign(formData: FormData) {
   if (!(await isStaffUser())) {
     throw new Error("No autorizado");
@@ -172,7 +181,16 @@ export async function bulkImportCampaignStats(formData: FormData) {
     conversions: Number(conversions) || 0,
   }));
 
-  await withAppUser((tx) => tx.insert(campaignStats).values(values));
+  try {
+    await withAppUser((tx) => tx.insert(campaignStats).values(values));
+  } catch (e) {
+    if (isUniqueViolation(e)) {
+      throw new Error(
+        "El CSV incluye una fecha que ya tiene estadística registrada para esta campaña — edítala en vez de importarla de nuevo, o quítala del CSV."
+      );
+    }
+    throw e;
+  }
 
   await logActivity({
     action: "bulk_import",
@@ -202,22 +220,29 @@ export async function updateCampaignStat(formData: FormData) {
     throw new Error("Faltan datos para actualizar la estadística");
   }
 
-  await withAppUser((tx) =>
-    tx
-      .update(campaignStats)
-      .set({
-        statDate,
-        impressions: Number.isFinite(impressions) ? impressions : 0,
-        clicks: Number.isFinite(clicks) ? clicks : 0,
-        spendMxnCents: Math.round(
-          (Number.isFinite(spendMxn) ? spendMxn : 0) * 100
-        ),
-        ctr: ctrPercent ? Number(ctrPercent) / 100 : null,
-        cpc: cpcMxn ? Number(cpcMxn) : null,
-        conversions: Number.isFinite(conversions) ? conversions : 0,
-      })
-      .where(eq(campaignStats.id, id))
-  );
+  try {
+    await withAppUser((tx) =>
+      tx
+        .update(campaignStats)
+        .set({
+          statDate,
+          impressions: Number.isFinite(impressions) ? impressions : 0,
+          clicks: Number.isFinite(clicks) ? clicks : 0,
+          spendMxnCents: Math.round(
+            (Number.isFinite(spendMxn) ? spendMxn : 0) * 100
+          ),
+          ctr: ctrPercent ? Number(ctrPercent) / 100 : null,
+          cpc: cpcMxn ? Number(cpcMxn) : null,
+          conversions: Number.isFinite(conversions) ? conversions : 0,
+        })
+        .where(eq(campaignStats.id, id))
+    );
+  } catch (e) {
+    if (isUniqueViolation(e)) {
+      throw new Error("Ya existe una estadística para esa fecha en esta campaña.");
+    }
+    throw e;
+  }
 
   await logActivity({
     action: "update",
@@ -271,18 +296,29 @@ export async function createCampaignStat(formData: FormData) {
     throw new Error("Faltan datos para registrar la estadística");
   }
 
-  await withAppUser((tx) =>
-    tx.insert(campaignStats).values({
-      campaignId,
-      statDate,
-      impressions: Number.isFinite(impressions) ? impressions : 0,
-      clicks: Number.isFinite(clicks) ? clicks : 0,
-      spendMxnCents: Math.round((Number.isFinite(spendMxn) ? spendMxn : 0) * 100),
-      ctr: ctrPercent ? Number(ctrPercent) / 100 : null,
-      cpc: cpcMxn ? Number(cpcMxn) : null,
-      conversions: Number.isFinite(conversions) ? conversions : 0,
-    })
-  );
+  try {
+    await withAppUser((tx) =>
+      tx.insert(campaignStats).values({
+        campaignId,
+        statDate,
+        impressions: Number.isFinite(impressions) ? impressions : 0,
+        clicks: Number.isFinite(clicks) ? clicks : 0,
+        spendMxnCents: Math.round(
+          (Number.isFinite(spendMxn) ? spendMxn : 0) * 100
+        ),
+        ctr: ctrPercent ? Number(ctrPercent) / 100 : null,
+        cpc: cpcMxn ? Number(cpcMxn) : null,
+        conversions: Number.isFinite(conversions) ? conversions : 0,
+      })
+    );
+  } catch (e) {
+    if (isUniqueViolation(e)) {
+      throw new Error(
+        "Ya existe una estadística para esa fecha en esta campaña — edítala en la lista de abajo."
+      );
+    }
+    throw e;
+  }
 
   await logActivity({
     action: "create",

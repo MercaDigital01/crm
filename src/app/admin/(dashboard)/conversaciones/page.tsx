@@ -147,6 +147,7 @@ export default async function AdminConversacionesPage({
                   <tr key={event.id}>
                     <td colSpan={4} className="px-4 py-3">
                       <EditToggle
+                        key={JSON.stringify(event)}
                         view={
                           <div className="grid grid-cols-4 gap-2">
                             <p className="text-gray-900">

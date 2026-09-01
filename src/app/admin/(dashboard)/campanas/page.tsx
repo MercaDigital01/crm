@@ -125,6 +125,7 @@ export default async function AdminCampanasPage({
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-[16rem] flex-1">
                       <EditToggle
+                        key={JSON.stringify(campaign)}
                         view={
                           <div>
                             <p className="text-sm font-semibold text-gray-900">
@@ -245,6 +246,7 @@ export default async function AdminCampanasPage({
                               className="flex flex-wrap items-center justify-between gap-2 py-2"
                             >
                               <EditToggle
+                                key={JSON.stringify(stat)}
                                 view={
                                   <p className="text-xs text-gray-600">
                                     {new Date(stat.statDate).toLocaleDateString(

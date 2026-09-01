@@ -163,6 +163,13 @@ export async function createClientTask(formData: FormData) {
 
   await withAppUser((tx) => tx.insert(clientTasks).values({ clientId, title }));
 
+  await logActivity({
+    action: "create",
+    entityType: "client_task",
+    entityId: clientId,
+    summary: `Agregó el pendiente "${title}"`,
+  });
+
   revalidatePath(`/admin/clients/${clientId}`);
 }
 
@@ -182,6 +189,13 @@ export async function toggleClientTask(formData: FormData) {
     tx.update(clientTasks).set({ done: !done }).where(eq(clientTasks.id, id))
   );
 
+  await logActivity({
+    action: "update",
+    entityType: "client_task",
+    entityId: clientId,
+    summary: `Marcó un pendiente como ${!done ? "hecho" : "pendiente"}`,
+  });
+
   revalidatePath(`/admin/clients/${clientId}`);
 }
 
@@ -197,6 +211,13 @@ export async function deleteClientTask(formData: FormData) {
   }
 
   await withAppUser((tx) => tx.delete(clientTasks).where(eq(clientTasks.id, id)));
+
+  await logActivity({
+    action: "delete",
+    entityType: "client_task",
+    entityId: clientId,
+    summary: "Eliminó un pendiente",
+  });
 
   revalidatePath(`/admin/clients/${clientId}`);
 }

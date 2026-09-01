@@ -1,5 +1,8 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "crypto";
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
+import { db } from "@/db";
+import { staffUsers } from "@/db/schema";
 
 // Standalone admin auth, independent of Clerk (Clerk is only for clients).
 // Session token shape: `${username}.${expiresAt}.${hmacSignature}`, stored in
@@ -62,6 +65,16 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 
   const expiresAt = Number(expiresAtRaw);
   if (!Number.isFinite(expiresAt) || Date.now() > expiresAt) return null;
+
+  // Cookie is valid up to `SESSION_TTL_SECONDS`, but the account behind it
+  // may have been deleted since it was issued — check staff_users directly
+  // (raw `db`, bypasses RLS — no identity established yet at this point,
+  // same precedent as the sign-in lookup) so a deleted account's cookie
+  // stops working on its very next request instead of lingering up to 12h.
+  const stillExists = await db.query.staffUsers.findFirst({
+    where: eq(staffUsers.username, username),
+  });
+  if (!stillExists) return null;
 
   return { username };
 }

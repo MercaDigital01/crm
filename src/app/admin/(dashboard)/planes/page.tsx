@@ -82,6 +82,7 @@ export default async function AdminPlanesPage() {
               <tr key={plan.id}>
                 <td colSpan={3} className="px-4 py-3">
                   <EditToggle
+                    key={JSON.stringify(plan)}
                     view={
                       <div className="grid grid-cols-3 gap-2">
                         <p className="font-medium text-gray-900">{plan.name}</p>

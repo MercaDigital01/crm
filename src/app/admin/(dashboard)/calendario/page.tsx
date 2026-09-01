@@ -185,6 +185,7 @@ export default async function AdminCalendarioPage({
                   <tr key={item.id}>
                     <td colSpan={6} className="px-4 py-3">
                       <EditToggle
+                        key={JSON.stringify(item)}
                         view={
                           <div className="grid grid-cols-6 gap-2">
                             <p className="text-gray-600">
