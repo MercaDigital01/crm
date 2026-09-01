@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 import { db } from "@/db";
 import {
+  agentConfigs,
   campaignStats,
   campaigns,
   clients,
@@ -96,6 +97,14 @@ export async function getContentItems(clientId: string) {
     tx.query.contentItems.findMany({
       where: eq(contentItems.clientId, clientId),
       orderBy: [desc(contentItems.scheduledDate)],
+    })
+  );
+}
+
+export async function getAgentConfig(clientId: string) {
+  return withAppUser((tx) =>
+    tx.query.agentConfigs.findFirst({
+      where: eq(agentConfigs.clientId, clientId),
     })
   );
 }

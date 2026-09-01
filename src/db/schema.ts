@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   date,
   integer,
   jsonb,
@@ -227,6 +228,63 @@ export const contentItems = pgTable(
       using: sql`${table.clientId} in (select id from clients where clerk_user_id = current_setting('app.clerk_user_id', true))`,
     }),
     pgPolicy("content_items_staff_full_access", {
+      for: "all",
+      to: appRuntime,
+      using: sql`current_setting('app.is_staff', true) = 'true'`,
+    }),
+  ]
+);
+
+export const agentTone = pgEnum("agent_tone", [
+  "cercano_amigable",
+  "profesional_formal",
+  "divertido_desenfadado",
+]);
+
+export const agentConversationGoal = pgEnum("agent_conversation_goal", [
+  "agendar_cita",
+  "cerrar_venta",
+  "calificar_lead",
+  "soporte",
+]);
+
+export const agentConfigs = pgTable(
+  "agent_configs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clientId: uuid("client_id")
+      .notNull()
+      .unique()
+      .references(() => clients.id),
+    agentName: text("agent_name").notNull(),
+    tone: agentTone("tone").notNull().default("cercano_amigable"),
+    welcomeMessage: text("welcome_message").notNull(),
+    businessHours: text("business_hours").notNull(),
+    knowledgeBase: text("knowledge_base"),
+    faqs: text("faqs"),
+    conversationGoal: agentConversationGoal("conversation_goal")
+      .notNull()
+      .default("agendar_cita"),
+    autoReplyOutsideHours: boolean("auto_reply_outside_hours")
+      .notNull()
+      .default(true),
+    outsideHoursMessage: text("outside_hours_message"),
+    escalationKeywords: text("escalation_keywords"),
+    maxAutoMessages: integer("max_auto_messages").notNull().default(6),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    pgPolicy("agent_configs_own_client", {
+      for: "all",
+      to: appRuntime,
+      using: sql`${table.clientId} in (select id from clients where clerk_user_id = current_setting('app.clerk_user_id', true))`,
+    }),
+    pgPolicy("agent_configs_staff_full_access", {
       for: "all",
       to: appRuntime,
       using: sql`current_setting('app.is_staff', true) = 'true'`,

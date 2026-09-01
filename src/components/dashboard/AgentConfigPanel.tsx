@@ -3,6 +3,7 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import type { agentConfigs } from "@/db/schema";
 
 const CARD_SHADOW = "shadow-[0_2px_10px_rgba(0,0,0,0.02)]";
 const CARD = `flex flex-col gap-5 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`;
@@ -11,39 +12,44 @@ const CAPTION = "text-xs font-medium uppercase tracking-wide text-gray-400";
 const INPUT = "rounded border border-gray-300 px-3 py-2 text-sm text-gray-900";
 
 const TONE_OPTIONS = [
-  "Cercano y amigable",
-  "Profesional y formal",
-  "Divertido y desenfadado",
+  { value: "cercano_amigable", label: "Cercano y amigable" },
+  { value: "profesional_formal", label: "Profesional y formal" },
+  { value: "divertido_desenfadado", label: "Divertido y desenfadado" },
 ] as const;
 
 const GOAL_OPTIONS = [
-  "Agendar una cita",
-  "Cerrar una venta",
-  "Calificar el interés (lead)",
-  "Dar soporte y resolver dudas",
+  { value: "agendar_cita", label: "Agendar una cita" },
+  { value: "cerrar_venta", label: "Cerrar una venta" },
+  { value: "calificar_lead", label: "Calificar el interés (lead)" },
+  { value: "soporte", label: "Dar soporte y resolver dudas" },
 ] as const;
 
 function Field({
   label,
   children,
+  hint,
 }: {
   label: string;
   children: React.ReactNode;
+  hint?: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
       <label className={LABEL}>{label}</label>
       {children}
+      {hint && <span className="text-xs text-gray-500">{hint}</span>}
     </div>
   );
 }
 
 function Toggle({
+  name,
   checked,
   onChange,
   label,
   hint,
 }: {
+  name: string;
   checked: boolean;
   onChange: (value: boolean) => void;
   label: string;
@@ -55,51 +61,38 @@ function Toggle({
         <span className="text-sm font-medium text-gray-900">{label}</span>
         {hint && <span className="text-xs text-gray-500">{hint}</span>}
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-          checked ? "bg-md-teal" : "bg-gray-300"
-        }`}
-      >
-        <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-            checked ? "translate-x-5" : "translate-x-0.5"
-          }`}
+      <label className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center">
+        <input
+          type="checkbox"
+          name={name}
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="peer sr-only"
         />
-      </button>
+        <span className="h-6 w-11 rounded-full bg-gray-300 transition-colors peer-checked:bg-md-teal" />
+        <span className="absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform peer-checked:translate-x-5" />
+      </label>
     </div>
   );
 }
 
-export function AgentConfigPanel({ businessName }: { businessName: string }) {
-  const [agentName, setAgentName] = useState(`Asistente de ${businessName}`);
-  const [tone, setTone] = useState<(typeof TONE_OPTIONS)[number]>(
-    TONE_OPTIONS[0]
+type AgentConfig = typeof agentConfigs.$inferSelect;
+
+export function AgentConfigPanel({
+  businessName,
+  initialConfig,
+  saveAgentConfig,
+}: {
+  businessName: string;
+  initialConfig: AgentConfig | null;
+  saveAgentConfig: (formData: FormData) => Promise<void>;
+}) {
+  const [autoReplyOutsideHours, setAutoReplyOutsideHours] = useState(
+    initialConfig?.autoReplyOutsideHours ?? true
   );
-  const [welcomeMessage, setWelcomeMessage] = useState(
-    `¡Hola! 👋 Gracias por escribirle a ${businessName}. ¿En qué te puedo ayudar hoy?`
-  );
-  const [businessHours, setBusinessHours] = useState("Lun-Sáb, 9:00-19:00");
-  const [knowledgeBase, setKnowledgeBase] = useState("");
-  const [faqs, setFaqs] = useState("");
-  const [conversationGoal, setConversationGoal] = useState<
-    (typeof GOAL_OPTIONS)[number]
-  >(GOAL_OPTIONS[0]);
-  const [autoReplyOutsideHours, setAutoReplyOutsideHours] = useState(true);
-  const [outsideHoursMessage, setOutsideHoursMessage] = useState(
-    "Gracias por tu mensaje. En este momento estamos fuera de horario, te respondemos en cuanto abramos."
-  );
-  const [escalationKeywords, setEscalationKeywords] = useState(
-    "hablar con alguien, queja, urgente, cancelar"
-  );
-  const [maxAutoMessages, setMaxAutoMessages] = useState("6");
-  const [saved, setSaved] = useState(false);
 
   return (
-    <div className="flex flex-col gap-8">
+    <form action={saveAgentConfig} className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
         <Link
           href="/dashboard/conversaciones"
@@ -114,8 +107,16 @@ export function AgentConfigPanel({ businessName }: { businessName: string }) {
           </h1>
           <p className="max-w-xl text-sm leading-relaxed text-gray-500">
             Configura cómo responde el agente a tus clientes por WhatsApp.
-            Este panel es una vista previa — la conexión con WhatsApp Business
-            y el guardado de estos ajustes llegan en la siguiente fase.
+            {initialConfig
+              ? ` Última actualización: ${new Date(
+                  initialConfig.updatedAt
+                ).toLocaleString("es-MX", {
+                  day: "2-digit",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}.`
+              : " Todavía no has guardado una configuración."}
           </p>
         </div>
       </div>
@@ -146,23 +147,22 @@ export function AgentConfigPanel({ businessName }: { businessName: string }) {
 
         <Field label="Nombre del agente">
           <input
-            value={agentName}
-            onChange={(e) => setAgentName(e.target.value)}
+            name="agentName"
+            required
+            defaultValue={initialConfig?.agentName ?? `Asistente de ${businessName}`}
             className={INPUT}
           />
         </Field>
 
         <Field label="Tono de voz">
           <select
-            value={tone}
-            onChange={(e) =>
-              setTone(e.target.value as (typeof TONE_OPTIONS)[number])
-            }
+            name="tone"
+            defaultValue={initialConfig?.tone ?? TONE_OPTIONS[0].value}
             className={INPUT}
           >
             {TONE_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>
@@ -170,8 +170,12 @@ export function AgentConfigPanel({ businessName }: { businessName: string }) {
 
         <Field label="Mensaje de bienvenida">
           <textarea
-            value={welcomeMessage}
-            onChange={(e) => setWelcomeMessage(e.target.value)}
+            name="welcomeMessage"
+            required
+            defaultValue={
+              initialConfig?.welcomeMessage ??
+              `¡Hola! 👋 Gracias por escribirle a ${businessName}. ¿En qué te puedo ayudar hoy?`
+            }
             rows={3}
             className={`${INPUT} resize-none`}
           />
@@ -183,16 +187,17 @@ export function AgentConfigPanel({ businessName }: { businessName: string }) {
 
         <Field label="Horario de atención">
           <input
-            value={businessHours}
-            onChange={(e) => setBusinessHours(e.target.value)}
+            name="businessHours"
+            required
+            defaultValue={initialConfig?.businessHours ?? "Lun-Sáb, 9:00-19:00"}
             className={INPUT}
           />
         </Field>
 
         <Field label="Productos, precios y promociones vigentes">
           <textarea
-            value={knowledgeBase}
-            onChange={(e) => setKnowledgeBase(e.target.value)}
+            name="knowledgeBase"
+            defaultValue={initialConfig?.knowledgeBase ?? ""}
             rows={4}
             placeholder="Ej. Paleta de yogurt $35, promo 2x1 los martes, envíos a domicilio con costo de $30..."
             className={`${INPUT} resize-none`}
@@ -201,8 +206,8 @@ export function AgentConfigPanel({ businessName }: { businessName: string }) {
 
         <Field label="Preguntas frecuentes">
           <textarea
-            value={faqs}
-            onChange={(e) => setFaqs(e.target.value)}
+            name="faqs"
+            defaultValue={initialConfig?.faqs ?? ""}
             rows={4}
             placeholder="Ej. ¿Tienen servicio a domicilio? Sí, en un radio de 5 km..."
             className={`${INPUT} resize-none`}
@@ -214,6 +219,7 @@ export function AgentConfigPanel({ businessName }: { businessName: string }) {
         <span className={CAPTION}>Reglas de comportamiento</span>
 
         <Toggle
+          name="autoReplyOutsideHours"
           checked={autoReplyOutsideHours}
           onChange={setAutoReplyOutsideHours}
           label="Responder automáticamente fuera de horario"
@@ -223,32 +229,37 @@ export function AgentConfigPanel({ businessName }: { businessName: string }) {
         {autoReplyOutsideHours && (
           <Field label="Mensaje fuera de horario">
             <textarea
-              value={outsideHoursMessage}
-              onChange={(e) => setOutsideHoursMessage(e.target.value)}
+              name="outsideHoursMessage"
+              defaultValue={
+                initialConfig?.outsideHoursMessage ??
+                "Gracias por tu mensaje. En este momento estamos fuera de horario, te respondemos en cuanto abramos."
+              }
               rows={2}
               className={`${INPUT} resize-none`}
             />
           </Field>
         )}
 
-        <Field label="Palabras clave que transfieren a un humano">
+        <Field
+          label="Palabras clave que transfieren a un humano"
+          hint="Separadas por coma. Si el cliente escribe alguna de estas palabras, el agente deja de responder y avisa al equipo."
+        >
           <input
-            value={escalationKeywords}
-            onChange={(e) => setEscalationKeywords(e.target.value)}
+            name="escalationKeywords"
+            defaultValue={
+              initialConfig?.escalationKeywords ??
+              "hablar con alguien, queja, urgente, cancelar"
+            }
             className={INPUT}
           />
-          <span className="text-xs text-gray-500">
-            Separadas por coma. Si el cliente escribe alguna de estas
-            palabras, el agente deja de responder y avisa al equipo.
-          </span>
         </Field>
 
         <Field label="Mensajes automáticos antes de transferir a un humano">
           <input
             type="number"
+            name="maxAutoMessages"
             min={1}
-            value={maxAutoMessages}
-            onChange={(e) => setMaxAutoMessages(e.target.value)}
+            defaultValue={initialConfig?.maxAutoMessages ?? 6}
             className={`${INPUT} max-w-[8rem]`}
           />
         </Field>
@@ -258,17 +269,13 @@ export function AgentConfigPanel({ businessName }: { businessName: string }) {
         <span className={CAPTION}>Objetivo de la conversación</span>
         <Field label="¿Qué debe lograr el agente en cada conversación?">
           <select
-            value={conversationGoal}
-            onChange={(e) =>
-              setConversationGoal(
-                e.target.value as (typeof GOAL_OPTIONS)[number]
-              )
-            }
+            name="conversationGoal"
+            defaultValue={initialConfig?.conversationGoal ?? GOAL_OPTIONS[0].value}
             className={INPUT}
           >
             {GOAL_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>
@@ -277,19 +284,12 @@ export function AgentConfigPanel({ businessName }: { businessName: string }) {
 
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">
         <button
-          type="button"
-          onClick={() => setSaved(true)}
+          type="submit"
           className="w-fit rounded-full bg-md-teal px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-md-teal/90"
         >
           Guardar cambios
         </button>
-        {saved && (
-          <span className="text-xs text-gray-500">
-            Vista previa guardada localmente — todavía no se sincroniza con
-            WhatsApp.
-          </span>
-        )}
       </div>
-    </div>
+    </form>
   );
 }

@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
 import { AgentConfigPanel } from "@/components/dashboard/AgentConfigPanel";
 import { isStaffUser } from "@/lib/staff";
-import { getViewedClient } from "../../data";
+import { getAgentConfig, getViewedClient } from "../../data";
+import { saveAgentConfig } from "./actions";
 
 export default async function AgenteIAPage() {
   const { userId } = await auth();
@@ -16,5 +17,14 @@ export default async function AgenteIAPage() {
     return <NoClientProfile />;
   }
 
-  return <AgentConfigPanel businessName={ownClient.businessName} />;
+  const config = await getAgentConfig(ownClient.id);
+
+  return (
+    <AgentConfigPanel
+      key={config?.updatedAt.toString() ?? "new"}
+      businessName={ownClient.businessName}
+      initialConfig={config ?? null}
+      saveAgentConfig={saveAgentConfig}
+    />
+  );
 }
