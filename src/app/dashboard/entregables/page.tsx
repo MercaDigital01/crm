@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { Download, FileText } from "lucide-react";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
 import { isStaffUser } from "@/lib/staff";
@@ -45,13 +46,14 @@ export default async function EntregablesPage() {
                 rel="noreferrer"
                 className={`group flex flex-col gap-3 rounded-2xl bg-white p-4 transition-shadow hover:shadow-md ${CARD_SHADOW}`}
               >
-                <div className="flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-gray-50">
+                <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-gray-50">
                   {isImage ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={file.fileUrl}
                       alt={file.title}
-                      className="h-full w-full object-cover"
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover"
                     />
                   ) : (
                     <FileText size={28} strokeWidth={1.5} className="text-gray-300" />

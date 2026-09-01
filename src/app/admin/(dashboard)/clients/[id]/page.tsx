@@ -7,10 +7,12 @@ import {
   getClientTasks,
   getContentItems,
   getContentRequests,
+  getDeliverables,
   getWhatsappEvents,
 } from "@/app/dashboard/data";
 import { CLIENT_STATUS_META } from "@/app/dashboard/status";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { DeliverableUploadForm } from "@/components/admin/DeliverableUploadForm";
 import { SelectAndSubmit } from "@/components/admin/SelectAndSubmit";
 import { TaskCheckbox } from "@/components/admin/TaskCheckbox";
 import { activityLog, clients } from "@/db/schema";
@@ -64,7 +66,7 @@ export default async function AdminClientDetailPage({
     notFound();
   }
 
-  const [campaigns, contentItems, events, tasks, contentReqs, adjustmentReqs, recentActivity] =
+  const [campaigns, contentItems, events, tasks, contentReqs, adjustmentReqs, files, recentActivity] =
     await Promise.all([
       getCampaignsWithStats(client.id),
       getContentItems(client.id),
@@ -72,6 +74,7 @@ export default async function AdminClientDetailPage({
       getClientTasks(client.id),
       getContentRequests(client.id),
       getCampaignAdjustmentRequests(client.id),
+      getDeliverables(client.id),
       withAppUser((tx) =>
         tx.query.activityLog.findMany({
           where: eq(activityLog.entityId, client.id),
@@ -347,6 +350,35 @@ export default async function AdminClientDetailPage({
               ))}
             </div>
           )}
+        </div>
+      </details>
+
+      <details className={`rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
+        <summary className="cursor-pointer text-sm font-semibold text-gray-900">
+          Entregables ({files.length})
+        </summary>
+        <div className="mt-4 flex flex-col gap-3">
+          {files.length === 0 ? (
+            <p className="text-sm text-gray-500">Sin entregables subidos.</p>
+          ) : (
+            <div className="flex flex-col divide-y divide-gray-100">
+              {files.map((file) => (
+                <a
+                  key={file.id}
+                  href={file.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between border-t border-gray-100 py-2.5 text-sm first:border-t-0 hover:text-md-teal"
+                >
+                  <span className="text-gray-900">{file.title}</span>
+                  <span className="text-xs text-gray-400">
+                    {new Date(file.createdAt).toLocaleDateString("es-MX")}
+                  </span>
+                </a>
+              ))}
+            </div>
+          )}
+          <DeliverableUploadForm clientId={client.id} />
         </div>
       </details>
 

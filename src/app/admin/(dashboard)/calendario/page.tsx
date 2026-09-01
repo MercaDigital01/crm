@@ -4,6 +4,7 @@ import { ClientPicker } from "@/components/admin/ClientPicker";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { EditorialMonthCalendar } from "@/components/admin/EditorialMonthCalendar";
 import { EditToggle } from "@/components/admin/EditToggle";
+import { ThumbnailUpload } from "@/components/admin/ThumbnailUpload";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { clients, contentItems } from "@/db/schema";
 import { withAppUser } from "@/db/session";
@@ -280,6 +281,7 @@ export default async function AdminCalendarioPage({
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
+                        <ThumbnailUpload itemId={item.id} clientId={selectedClient.id} />
                         {allClients.length > 1 && (
                           <form action={duplicateContentItem} className="flex items-center gap-1">
                             <input type="hidden" name="itemId" value={item.id} />
