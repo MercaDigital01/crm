@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-session";
 import { clients, supportAccessLog } from "@/db/schema";
 import { withAppUser } from "@/db/session";
+import { logActivity } from "@/lib/activity-log";
 import { isStaffUser } from "@/lib/staff";
 import {
   SUPPORT_VIEW_COOKIE,
@@ -36,6 +37,12 @@ export async function createClient(formData: FormData) {
     })
   );
 
+  await logActivity({
+    action: "create",
+    entityType: "client",
+    summary: `Creó el cliente "${businessName}"`,
+  });
+
   revalidatePath("/admin/clients");
 }
 
@@ -63,7 +70,15 @@ export async function updateClientStatus(formData: FormData) {
       .where(eq(clients.id, clientId))
   );
 
+  await logActivity({
+    action: "update_status",
+    entityType: "client",
+    entityId: clientId,
+    summary: `Cambió el estado del cliente a "${status}"`,
+  });
+
   revalidatePath("/admin/clients");
+  revalidatePath(`/admin/clients/${clientId}`);
 }
 
 export async function updateClientPlan(formData: FormData) {
@@ -85,7 +100,54 @@ export async function updateClientPlan(formData: FormData) {
       .where(eq(clients.id, clientId))
   );
 
+  await logActivity({
+    action: "update_plan",
+    entityType: "client",
+    entityId: clientId,
+    summary: "Cambió el plan asignado al cliente",
+  });
+
   revalidatePath("/admin/clients");
+  revalidatePath(`/admin/clients/${clientId}`);
+}
+
+export async function updateClientProfile(formData: FormData) {
+  if (!(await isStaffUser())) {
+    throw new Error("No autorizado");
+  }
+
+  const clientId = String(formData.get("id") ?? "");
+  const businessName = String(formData.get("businessName") ?? "").trim();
+  const contactEmail = String(formData.get("contactEmail") ?? "")
+    .trim()
+    .toLowerCase();
+  const contactPhone = String(formData.get("contactPhone") ?? "").trim();
+
+  if (!clientId || !businessName || !contactEmail) {
+    throw new Error("Nombre del negocio y correo son obligatorios");
+  }
+
+  await withAppUser((tx) =>
+    tx
+      .update(clients)
+      .set({
+        businessName,
+        contactEmail,
+        contactPhone: contactPhone || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(clients.id, clientId))
+  );
+
+  await logActivity({
+    action: "update",
+    entityType: "client",
+    entityId: clientId,
+    summary: `Editó el perfil de "${businessName}"`,
+  });
+
+  revalidatePath("/admin/clients");
+  revalidatePath(`/admin/clients/${clientId}`);
 }
 
 export async function enterSupportView(formData: FormData) {

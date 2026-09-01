@@ -1,5 +1,6 @@
 import { asc, desc, ilike, or } from "drizzle-orm";
 import { CLIENT_STATUS_META } from "@/app/dashboard/status";
+import { EditToggle } from "@/components/admin/EditToggle";
 import { SelectAndSubmit } from "@/components/admin/SelectAndSubmit";
 import { clients, plans } from "@/db/schema";
 import { withAppUser } from "@/db/session";
@@ -8,6 +9,7 @@ import {
   createClient,
   enterSupportView,
   updateClientPlan,
+  updateClientProfile,
   updateClientStatus,
 } from "./actions";
 
@@ -121,7 +123,6 @@ export default async function AdminClientsPage({
             <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
               <tr>
                 <th className="px-4 py-3">Negocio</th>
-                <th className="px-4 py-3">Correo</th>
                 <th className="px-4 py-3">Vinculado</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Plan</th>
@@ -131,11 +132,52 @@ export default async function AdminClientsPage({
             <tbody className="divide-y divide-gray-100">
               {allClients.map((client) => (
                 <tr key={client.id}>
-                  <td className="px-4 py-3 font-medium text-gray-900">
-                    {client.businessName}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {client.contactEmail}
+                  <td className="min-w-[16rem] px-4 py-3">
+                    <EditToggle
+                      view={
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {client.businessName}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {client.contactEmail}
+                          </p>
+                        </div>
+                      }
+                      edit={
+                        <form
+                          action={updateClientProfile}
+                          className="flex flex-col gap-1.5"
+                        >
+                          <input type="hidden" name="id" value={client.id} />
+                          <input
+                            name="businessName"
+                            defaultValue={client.businessName}
+                            required
+                            className="rounded border border-gray-300 px-2 py-1 text-xs"
+                          />
+                          <input
+                            name="contactEmail"
+                            type="email"
+                            defaultValue={client.contactEmail}
+                            required
+                            className="rounded border border-gray-300 px-2 py-1 text-xs"
+                          />
+                          <input
+                            name="contactPhone"
+                            defaultValue={client.contactPhone ?? ""}
+                            placeholder="Teléfono"
+                            className="rounded border border-gray-300 px-2 py-1 text-xs"
+                          />
+                          <button
+                            type="submit"
+                            className="w-fit rounded-full bg-md-teal px-3 py-1 text-xs font-medium text-white hover:bg-md-teal/90"
+                          >
+                            Guardar
+                          </button>
+                        </form>
+                      }
+                    />
                   </td>
                   <td className="px-4 py-3">
                     <span
@@ -183,7 +225,7 @@ export default async function AdminClientsPage({
               {allClients.length === 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={5}
                     className="px-4 py-6 text-center text-sm text-gray-500"
                   >
                     No se encontraron clientes.

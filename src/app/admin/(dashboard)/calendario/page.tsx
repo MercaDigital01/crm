@@ -1,10 +1,12 @@
 import { asc } from "drizzle-orm";
 import { getContentItems } from "@/app/dashboard/data";
 import { ClientPicker } from "@/components/admin/ClientPicker";
+import { DeleteButton } from "@/components/admin/DeleteButton";
+import { EditToggle } from "@/components/admin/EditToggle";
 import { clients } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { requireStaffOrRedirect } from "@/lib/staff";
-import { createContentItem } from "./actions";
+import { createContentItem, deleteContentItem, updateContentItem } from "./actions";
 
 const STATUS_OPTIONS = [
   { value: "borrador", label: "Borrador" },
@@ -149,43 +151,121 @@ export default async function AdminCalendarioPage({
                   <th className="px-4 py-3">Pilar</th>
                   <th className="px-4 py-3">Formato</th>
                   <th className="px-4 py-3">Estado</th>
+                  <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {items.map((item) => (
                   <tr key={item.id}>
-                    <td className="px-4 py-3 text-gray-600">
-                      {new Date(item.scheduledDate).toLocaleDateString(
-                        "es-MX"
-                      )}
+                    <td colSpan={6} className="px-4 py-3">
+                      <EditToggle
+                        view={
+                          <div className="grid grid-cols-6 gap-2">
+                            <p className="text-gray-600">
+                              {new Date(item.scheduledDate).toLocaleDateString(
+                                "es-MX"
+                              )}
+                            </p>
+                            <p className="font-medium text-gray-900">
+                              {item.title}
+                            </p>
+                            <p className="text-gray-600">{item.platform}</p>
+                            <p className="text-gray-600">
+                              {item.pillar ?? "—"}
+                            </p>
+                            <p className="text-gray-600">
+                              {
+                                FORMAT_OPTIONS.find(
+                                  (o) => o.value === item.format
+                                )?.label
+                              }
+                            </p>
+                            <p className="text-gray-600">
+                              {
+                                STATUS_OPTIONS.find(
+                                  (o) => o.value === item.status
+                                )?.label
+                              }
+                            </p>
+                          </div>
+                        }
+                        edit={
+                          <form
+                            action={updateContentItem}
+                            className="grid grid-cols-2 gap-1.5 sm:grid-cols-6 sm:items-end"
+                          >
+                            <input type="hidden" name="id" value={item.id} />
+                            <input
+                              type="date"
+                              name="scheduledDate"
+                              defaultValue={item.scheduledDate}
+                              required
+                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                            />
+                            <input
+                              name="title"
+                              defaultValue={item.title}
+                              required
+                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                            />
+                            <input
+                              name="platform"
+                              defaultValue={item.platform}
+                              required
+                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                            />
+                            <input
+                              name="pillar"
+                              defaultValue={item.pillar ?? ""}
+                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                            />
+                            <select
+                              name="format"
+                              defaultValue={item.format}
+                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                            >
+                              {FORMAT_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="flex gap-1.5">
+                              <select
+                                name="status"
+                                defaultValue={item.status}
+                                className="w-full rounded border border-gray-300 px-2 py-1 text-xs"
+                              >
+                                {STATUS_OPTIONS.map((option) => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                type="submit"
+                                className="shrink-0 rounded-full bg-md-teal px-3 py-1 text-xs font-medium text-white hover:bg-md-teal/90"
+                              >
+                                Guardar
+                              </button>
+                            </div>
+                          </form>
+                        }
+                      />
                     </td>
-                    <td className="px-4 py-3 font-medium text-gray-900">
-                      {item.title}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {item.platform}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {item.pillar ?? "—"}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {
-                        FORMAT_OPTIONS.find((o) => o.value === item.format)
-                          ?.label
-                      }
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {
-                        STATUS_OPTIONS.find((o) => o.value === item.status)
-                          ?.label
-                      }
+                    <td className="px-4 py-3">
+                      <DeleteButton
+                        action={deleteContentItem}
+                        id={item.id}
+                        confirmMessage={`¿Eliminar "${item.title}"?`}
+                      />
                     </td>
                   </tr>
                 ))}
                 {items.length === 0 && (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="px-4 py-6 text-center text-sm text-gray-500"
                     >
                       {selectedClient.businessName} todavía no tiene

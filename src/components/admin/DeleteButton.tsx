@@ -1,0 +1,32 @@
+"use client";
+
+export function DeleteButton({
+  action,
+  id,
+  confirmMessage = "¿Seguro que quieres eliminar esto? No se puede deshacer.",
+  label = "Eliminar",
+}: {
+  action: (formData: FormData) => void | Promise<void>;
+  id: string;
+  confirmMessage?: string;
+  label?: string;
+}) {
+  return (
+    <form
+      action={action}
+      onSubmit={(e) => {
+        if (!window.confirm(confirmMessage)) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <input type="hidden" name="id" value={id} />
+      <button
+        type="submit"
+        className="rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-500 transition-colors hover:border-md-red/40 hover:bg-md-red/10 hover:text-md-red"
+      >
+        {label}
+      </button>
+    </form>
+  );
+}

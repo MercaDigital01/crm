@@ -1,8 +1,10 @@
 import { asc } from "drizzle-orm";
+import { DeleteButton } from "@/components/admin/DeleteButton";
+import { EditToggle } from "@/components/admin/EditToggle";
 import { plans } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { requireStaffOrRedirect } from "@/lib/staff";
-import { createPlan } from "./actions";
+import { createPlan, deletePlan, updatePlan } from "./actions";
 
 export default async function AdminPlanesPage() {
   await requireStaffOrRedirect("/admin/planes");
@@ -72,30 +74,80 @@ export default async function AdminPlanesPage() {
               <th className="px-4 py-3">Nombre</th>
               <th className="px-4 py-3">Precio</th>
               <th className="px-4 py-3">Descripción</th>
+              <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {allPlans.map((plan) => (
               <tr key={plan.id}>
-                <td className="px-4 py-3 font-medium text-gray-900">
-                  {plan.name}
+                <td colSpan={3} className="px-4 py-3">
+                  <EditToggle
+                    view={
+                      <div className="grid grid-cols-3 gap-2">
+                        <p className="font-medium text-gray-900">{plan.name}</p>
+                        <p className="text-gray-600">
+                          {(plan.priceMxnCents / 100).toLocaleString("es-MX", {
+                            style: "currency",
+                            currency: "MXN",
+                          })}{" "}
+                          / mes
+                        </p>
+                        <p className="text-gray-600">
+                          {plan.description ?? "—"}
+                        </p>
+                      </div>
+                    }
+                    edit={
+                      <form
+                        action={updatePlan}
+                        className="grid grid-cols-1 gap-2 sm:grid-cols-3"
+                      >
+                        <input type="hidden" name="id" value={plan.id} />
+                        <input
+                          name="name"
+                          defaultValue={plan.name}
+                          required
+                          className="rounded border border-gray-300 px-2 py-1 text-xs"
+                        />
+                        <input
+                          type="number"
+                          name="priceMxn"
+                          min={0}
+                          step="0.01"
+                          defaultValue={plan.priceMxnCents / 100}
+                          required
+                          className="rounded border border-gray-300 px-2 py-1 text-xs"
+                        />
+                        <div className="flex gap-2">
+                          <input
+                            name="description"
+                            defaultValue={plan.description ?? ""}
+                            className="w-full rounded border border-gray-300 px-2 py-1 text-xs"
+                          />
+                          <button
+                            type="submit"
+                            className="shrink-0 rounded-full bg-md-teal px-3 py-1 text-xs font-medium text-white hover:bg-md-teal/90"
+                          >
+                            Guardar
+                          </button>
+                        </div>
+                      </form>
+                    }
+                  />
                 </td>
-                <td className="px-4 py-3 text-gray-600">
-                  {(plan.priceMxnCents / 100).toLocaleString("es-MX", {
-                    style: "currency",
-                    currency: "MXN",
-                  })}{" "}
-                  / mes
-                </td>
-                <td className="px-4 py-3 text-gray-600">
-                  {plan.description ?? "—"}
+                <td className="px-4 py-3">
+                  <DeleteButton
+                    action={deletePlan}
+                    id={plan.id}
+                    confirmMessage={`¿Eliminar el plan "${plan.name}"?`}
+                  />
                 </td>
               </tr>
             ))}
             {allPlans.length === 0 && (
               <tr>
                 <td
-                  colSpan={3}
+                  colSpan={4}
                   className="px-4 py-6 text-center text-sm text-gray-500"
                 >
                   Todavía no hay planes creados.

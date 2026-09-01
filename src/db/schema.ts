@@ -435,6 +435,31 @@ export const payments = pgTable(
   ]
 );
 
+// Lightweight staff activity log — one line per mutation, not a full
+// field-level diff. Staff-only, same shape as support_access_log.
+export const activityLog = pgTable(
+  "activity_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    actorUsername: text("actor_username").notNull(),
+    action: text("action").notNull(),
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id"),
+    summary: text("summary").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  () => [
+    pgPolicy("activity_log_staff_only", {
+      for: "all",
+      to: appRuntime,
+      using: sql`current_setting('app.is_staff', true) = 'true'`,
+      withCheck: sql`current_setting('app.is_staff', true) = 'true'`,
+    }),
+  ]
+);
+
 // Vista de Soporte audit trail (docs/terminos-de-servicio.md §10.2). Staff-only
 // by design — no "own row" policy exists here, a client must never be able to
 // read who accessed their account.
