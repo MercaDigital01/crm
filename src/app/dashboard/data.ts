@@ -11,6 +11,8 @@ import {
   clients,
   contentItems,
   contentRequests,
+  deliverables,
+  payments,
   plans,
   whatsappEvents,
 } from "@/db/schema";
@@ -117,6 +119,24 @@ export async function getCampaignAdjustmentRequests(clientId: string) {
     tx.query.campaignAdjustmentRequests.findMany({
       where: eq(campaignAdjustmentRequests.clientId, clientId),
       orderBy: [desc(campaignAdjustmentRequests.createdAt)],
+    })
+  );
+}
+
+export async function getDeliverables(clientId: string) {
+  return withAppUser((tx) =>
+    tx.query.deliverables.findMany({
+      where: eq(deliverables.clientId, clientId),
+      orderBy: [desc(deliverables.createdAt)],
+    })
+  );
+}
+
+export async function getPayments(clientId: string) {
+  return withAppUser((tx) =>
+    tx.query.payments.findMany({
+      where: eq(payments.clientId, clientId),
+      orderBy: [desc(payments.paidAt)],
     })
   );
 }

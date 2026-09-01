@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
 import { isStaffUser } from "@/lib/staff";
-import { getViewedClient } from "../data";
+import { getPayments, getViewedClient } from "../data";
 import { CLIENT_STATUS_META } from "../status";
 
 const STATUS_PILL = {
@@ -26,6 +26,7 @@ export default async function PagoPage() {
   }
 
   const statusMeta = CLIENT_STATUS_META[ownClient.status];
+  const payments = await getPayments(ownClient.id);
 
   return (
     <div className="flex flex-col gap-10">
@@ -53,6 +54,48 @@ export default async function PagoPage() {
           la siguiente fase del proyecto. Por ahora, cualquier ajuste a tu
           método de pago se coordina directo con nosotros por WhatsApp.
         </p>
+      </div>
+
+      <div className={`flex flex-col gap-3 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`}>
+        <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+          Historial de pagos
+        </span>
+        {payments.length === 0 ? (
+          <p className="max-w-md text-sm leading-relaxed text-gray-500">
+            Todavía no hay pagos registrados en tu cuenta.
+          </p>
+        ) : (
+          <div className="flex flex-col divide-y divide-gray-100">
+            {payments.map((payment) => (
+              <div
+                key={payment.id}
+                className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-sm font-medium text-gray-900">
+                    {(payment.amountMxnCents / 100).toLocaleString("es-MX", {
+                      style: "currency",
+                      currency: "MXN",
+                    })}
+                  </p>
+                  {payment.note && (
+                    <p className="text-xs text-gray-500">{payment.note}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  {payment.method && <span>{payment.method}</span>}
+                  <span>
+                    {new Date(payment.paidAt).toLocaleDateString("es-MX", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -25,6 +25,7 @@ export type CalendarContentItem = {
   pillar: string | null;
   status: keyof typeof STATUS_COPY;
   format: keyof typeof FORMAT_COPY;
+  thumbnailUrl: string | null;
 };
 
 function sameDay(a: Date, b: Date) {
@@ -160,9 +161,17 @@ export function ContentMonthCalendar({
                     <span
                       key={item.id}
                       title={`${item.title} · ${FORMAT_COPY[item.format]} · ${STATUS_COPY[item.status]}`}
-                      className="truncate rounded bg-md-teal/10 px-1.5 py-0.5 text-[10px] font-medium text-md-teal"
+                      className="flex items-center gap-1 truncate rounded bg-md-teal/10 px-1.5 py-0.5 text-[10px] font-medium text-md-teal"
                     >
-                      {item.title}
+                      {item.thumbnailUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.thumbnailUrl}
+                          alt=""
+                          className="h-3.5 w-3.5 shrink-0 rounded-sm object-cover"
+                        />
+                      )}
+                      <span className="truncate">{item.title}</span>
                     </span>
                   ))}
                   {dayItems.length > 2 && (

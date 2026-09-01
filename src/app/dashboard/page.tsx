@@ -1,10 +1,11 @@
 import { auth } from "@clerk/nextjs/server";
-import { CalendarDays, MessageCircle, Megaphone } from "lucide-react";
+import { CalendarDays, Circle, CheckCircle2, MessageCircle, Megaphone } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
 import { isStaffUser } from "@/lib/staff";
 import {
+  getAgentConfig,
   getCampaignsWithStats,
   getContentItems,
   getOwnPlan,
@@ -55,15 +56,37 @@ export default async function DashboardResumenPage() {
     return <NoClientProfile />;
   }
 
-  const [plan, contentItems, whatsappEvents, campaigns] = await Promise.all([
-    getOwnPlan(ownClient.planId),
-    getContentItems(ownClient.id),
-    getWhatsappEvents(ownClient.id),
-    getCampaignsWithStats(ownClient.id),
-  ]);
+  const [plan, contentItems, whatsappEvents, campaigns, agentConfig] =
+    await Promise.all([
+      getOwnPlan(ownClient.planId),
+      getContentItems(ownClient.id),
+      getWhatsappEvents(ownClient.id),
+      getCampaignsWithStats(ownClient.id),
+      getAgentConfig(ownClient.id),
+    ]);
 
   const statusMeta = CLIENT_STATUS_META[ownClient.status];
   const activeCampaigns = campaigns.filter((c) => c.status === "activa");
+
+  const checklist = [
+    { label: "Plan asignado", done: !!plan, href: "/dashboard/pago" },
+    {
+      label: "Campaña activa",
+      done: activeCampaigns.length > 0,
+      href: "/dashboard/campanas",
+    },
+    {
+      label: "Contenido programado",
+      done: contentItems.length > 0,
+      href: "/dashboard/calendario",
+    },
+    {
+      label: "Agente de IA configurado",
+      done: !!agentConfig,
+      href: "/dashboard/conversaciones/agente",
+    },
+  ];
+  const checklistComplete = checklist.every((item) => item.done);
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -82,6 +105,35 @@ export default async function DashboardResumenPage() {
         </h1>
         <p className="mt-1 text-sm text-gray-500">{ownClient.businessName}</p>
       </div>
+
+      {!checklistComplete && (
+        <div className={`flex flex-col gap-3 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`}>
+          <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+            Primeros pasos
+          </span>
+          <div className="flex flex-col gap-2">
+            {checklist.map((item) => {
+              const Icon = item.done ? CheckCircle2 : Circle;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="flex items-center gap-2 text-sm"
+                >
+                  <Icon
+                    size={16}
+                    strokeWidth={2}
+                    className={item.done ? "text-md-teal" : "text-gray-300"}
+                  />
+                  <span className={item.done ? "text-gray-400 line-through" : "text-gray-700"}>
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <StatTile

@@ -3,6 +3,7 @@ import { HelpCircle } from "lucide-react";
 import { redirect } from "next/navigation";
 import { CampaignStatsPanel } from "@/components/dashboard/CampaignStatsPanel";
 import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
+import { PrintButton } from "@/components/dashboard/PrintButton";
 import { isStaffUser } from "@/lib/staff";
 import {
   getCampaignAdjustmentRequests,
@@ -68,10 +69,13 @@ export default async function CampanasPage() {
   return (
     <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Tus campañas.
-        </h1>
-        <details className={`group rounded-2xl bg-white p-4 ${CARD_SHADOW}`}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Tus campañas.
+          </h1>
+          <PrintButton />
+        </div>
+        <details className={`group rounded-2xl bg-white p-4 print:hidden ${CARD_SHADOW}`}>
           <summary className="flex cursor-pointer list-none items-center gap-2 text-xs font-medium text-gray-500">
             <HelpCircle size={14} strokeWidth={2} />
             ¿Qué significan estos números?
@@ -125,7 +129,7 @@ export default async function CampanasPage() {
                 </p>
               )}
 
-              <details className="border-t border-gray-100 pt-3">
+              <details className="border-t border-gray-100 pt-3 print:hidden">
                 <summary className="cursor-pointer text-xs font-medium text-md-teal">
                   Solicitar ajuste
                 </summary>
@@ -163,7 +167,7 @@ export default async function CampanasPage() {
       )}
 
       {adjustmentRequests.length > 0 && (
-        <div className={`flex flex-col gap-3 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`}>
+        <div className={`flex flex-col gap-3 rounded-2xl bg-white p-6 md:p-8 print:hidden ${CARD_SHADOW}`}>
           <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
             Tus solicitudes de ajuste
           </span>

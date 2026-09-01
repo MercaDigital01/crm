@@ -217,6 +217,7 @@ export const contentItems = pgTable(
     title: text("title").notNull(),
     status: contentStatus("status").notNull().default("borrador"),
     format: contentFormat("format").notNull(),
+    thumbnailUrl: text("thumbnail_url"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -360,6 +361,72 @@ export const campaignAdjustmentRequests = pgTable(
       withCheck: sql`${table.clientId} in (select id from clients where clerk_user_id = current_setting('app.clerk_user_id', true))`,
     }),
     pgPolicy("campaign_adjustment_requests_staff_full_access", {
+      for: "all",
+      to: appRuntime,
+      using: sql`current_setting('app.is_staff', true) = 'true'`,
+      withCheck: sql`current_setting('app.is_staff', true) = 'true'`,
+    }),
+  ]
+);
+
+// Client side is read-only by design here (staff upload from the admin
+// panel in a later pass) — own-client policy is SELECT-only, unlike the
+// for:"all" pattern used elsewhere for client-writable tables.
+export const deliverables = pgTable(
+  "deliverables",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clientId: uuid("client_id")
+      .notNull()
+      .references(() => clients.id),
+    title: text("title").notNull(),
+    fileUrl: text("file_url").notNull(),
+    cloudinaryPublicId: text("cloudinary_public_id").notNull(),
+    fileType: text("file_type").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    pgPolicy("deliverables_own_client_read", {
+      for: "select",
+      to: appRuntime,
+      using: sql`${table.clientId} in (select id from clients where clerk_user_id = current_setting('app.clerk_user_id', true))`,
+    }),
+    pgPolicy("deliverables_staff_full_access", {
+      for: "all",
+      to: appRuntime,
+      using: sql`current_setting('app.is_staff', true) = 'true'`,
+      withCheck: sql`current_setting('app.is_staff', true) = 'true'`,
+    }),
+  ]
+);
+
+// Same read-only-for-client shape as deliverables — staff record payments
+// from the admin panel in a later pass, matching how billing is still
+// coordinated manually per dashboard/pago's existing copy.
+export const payments = pgTable(
+  "payments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clientId: uuid("client_id")
+      .notNull()
+      .references(() => clients.id),
+    amountMxnCents: integer("amount_mxn_cents").notNull(),
+    paidAt: timestamp("paid_at", { withTimezone: true }).notNull(),
+    method: text("method"),
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    pgPolicy("payments_own_client_read", {
+      for: "select",
+      to: appRuntime,
+      using: sql`${table.clientId} in (select id from clients where clerk_user_id = current_setting('app.clerk_user_id', true))`,
+    }),
+    pgPolicy("payments_staff_full_access", {
       for: "all",
       to: appRuntime,
       using: sql`current_setting('app.is_staff', true) = 'true'`,

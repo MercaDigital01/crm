@@ -2,6 +2,7 @@
 
 import {
   CalendarDays,
+  FolderOpen,
   LayoutDashboard,
   Megaphone,
   MessageCircle,
@@ -32,6 +33,12 @@ const NAV = [
     href: "/dashboard/campanas",
     label: "Campañas",
     icon: Megaphone,
+    exact: false,
+  },
+  {
+    href: "/dashboard/entregables",
+    label: "Entregables",
+    icon: FolderOpen,
     exact: false,
   },
   { href: "/dashboard/pago", label: "Pago", icon: Wallet, exact: false },

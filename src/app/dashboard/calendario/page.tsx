@@ -50,6 +50,7 @@ export default async function CalendarioPage() {
             pillar: item.pillar,
             status: item.status,
             format: item.format,
+            thumbnailUrl: item.thumbnailUrl,
           }))}
         />
       )}

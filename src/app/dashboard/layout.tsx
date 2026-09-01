@@ -37,7 +37,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen flex-1 bg-gray-50 text-gray-900">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-gray-200 bg-white md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-gray-200 bg-white md:flex print:hidden">
         <Link href="/" className="flex items-center gap-2 px-5 py-5">
           <Image
             src="/brand/logo-merca-digital.png"
@@ -72,7 +72,7 @@ export default async function DashboardLayout({
 
       <div className="flex min-w-0 flex-1 flex-col">
         {isSupportView && ownClient && (
-          <div className="flex flex-col items-center justify-center gap-2 bg-md-gold/15 px-6 py-2.5 text-gray-900 sm:flex-row sm:gap-4">
+          <div className="flex flex-col items-center justify-center gap-2 bg-md-gold/15 px-6 py-2.5 text-gray-900 sm:flex-row sm:gap-4 print:hidden">
             <p className="text-xs font-medium uppercase tracking-wide">
               Vista de soporte · viendo la cuenta de{" "}
               <span className="font-semibold">{ownClient.businessName}</span>
@@ -88,7 +88,7 @@ export default async function DashboardLayout({
           </div>
         )}
 
-        <header className="flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3 md:hidden">
+        <header className="flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3 md:hidden print:hidden">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/brand/logo-merca-digital.png"
@@ -100,7 +100,7 @@ export default async function DashboardLayout({
           </Link>
           <UserButton />
         </header>
-        <div className="border-b border-gray-200 bg-white px-3 py-2 md:hidden">
+        <div className="border-b border-gray-200 bg-white px-3 py-2 md:hidden print:hidden">
           <DashboardTabs latestActivity={latestActivity} />
         </div>
 
