@@ -1,4 +1,5 @@
-import { asc, desc, ilike, or } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
+import Link from "next/link";
 import { CLIENT_STATUS_META } from "@/app/dashboard/status";
 import { EditToggle } from "@/components/admin/EditToggle";
 import { SelectAndSubmit } from "@/components/admin/SelectAndSubmit";
@@ -20,22 +21,38 @@ const STATUS_OPTIONS = Object.entries(CLIENT_STATUS_META).map(
 export default async function AdminClientsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; planId?: string }>;
 }) {
   await requireStaffOrRedirect("/admin/clients");
 
-  const { q } = await searchParams;
+  const { q, status, planId } = await searchParams;
   const search = q?.trim() ?? "";
+
+  const filters = [
+    search
+      ? or(
+          ilike(clients.businessName, `%${search}%`),
+          ilike(clients.contactEmail, `%${search}%`)
+        )
+      : undefined,
+    status
+      ? eq(
+          clients.status,
+          status as
+            | "pendiente_de_pago"
+            | "activo"
+            | "en_gracia"
+            | "suspendido"
+            | "cancelado"
+        )
+      : undefined,
+    planId ? eq(clients.planId, planId) : undefined,
+  ].filter((f) => f !== undefined);
 
   const [allClients, allPlans] = await Promise.all([
     withAppUser((tx) =>
       tx.query.clients.findMany({
-        where: search
-          ? or(
-              ilike(clients.businessName, `%${search}%`),
-              ilike(clients.contactEmail, `%${search}%`)
-            )
-          : undefined,
+        where: filters.length > 0 ? and(...filters) : undefined,
         orderBy: [desc(clients.createdAt)],
       })
     ),
@@ -102,7 +119,7 @@ export default async function AdminClientsPage({
       </form>
 
       <div className="flex flex-col gap-4">
-        <form action="/admin/clients" className="flex gap-2">
+        <form action="/admin/clients" className="flex flex-wrap gap-2">
           <input
             type="search"
             name="q"
@@ -110,11 +127,35 @@ export default async function AdminClientsPage({
             placeholder="Buscar por nombre o correo…"
             className="w-full max-w-sm rounded border border-gray-300 px-3 py-2 text-sm"
           />
+          <select
+            name="status"
+            defaultValue={status ?? ""}
+            className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-700"
+          >
+            <option value="">Todos los estados</option>
+            {STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <select
+            name="planId"
+            defaultValue={planId ?? ""}
+            className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-700"
+          >
+            <option value="">Todos los planes</option>
+            {allPlans.map((plan) => (
+              <option key={plan.id} value={plan.id}>
+                {plan.name}
+              </option>
+            ))}
+          </select>
           <button
             type="submit"
             className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
           >
-            Buscar
+            Filtrar
           </button>
         </form>
 
@@ -136,9 +177,12 @@ export default async function AdminClientsPage({
                     <EditToggle
                       view={
                         <div>
-                          <p className="font-medium text-gray-900">
+                          <Link
+                            href={`/admin/clients/${client.id}`}
+                            className="font-medium text-gray-900 hover:text-md-teal hover:underline"
+                          >
                             {client.businessName}
-                          </p>
+                          </Link>
                           <p className="text-xs text-gray-500">
                             {client.contactEmail}
                           </p>
