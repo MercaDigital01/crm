@@ -1,5 +1,5 @@
 import { desc, eq } from "drizzle-orm";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { CLIENT_STATUS_META } from "@/app/dashboard/status";
 import { clients, whatsappEvents } from "@/db/schema";
@@ -102,27 +102,99 @@ function ActivityChart({ counts }: { counts: number[] }) {
 export default async function AdminResumenPage() {
   await requireStaffOrRedirect("/admin");
 
-  const [allClients, allCampaigns, allEvents, recentEvents] = await Promise.all([
-    withAppUser((tx) =>
-      tx.query.clients.findMany({ orderBy: [desc(clients.createdAt)] })
-    ),
-    withAppUser((tx) => tx.query.campaigns.findMany()),
-    withAppUser((tx) => tx.query.whatsappEvents.findMany()),
-    withAppUser((tx) =>
-      tx
-        .select({
-          id: whatsappEvents.id,
-          contactName: whatsappEvents.contactName,
-          outcome: whatsappEvents.outcome,
-          occurredAt: whatsappEvents.occurredAt,
-          businessName: clients.businessName,
-        })
-        .from(whatsappEvents)
-        .innerJoin(clients, eq(whatsappEvents.clientId, clients.id))
-        .orderBy(desc(whatsappEvents.occurredAt))
-        .limit(5)
-    ),
-  ]);
+  const [allClients, allCampaigns, allEvents, recentEvents, allStats] =
+    await Promise.all([
+      withAppUser((tx) =>
+        tx.query.clients.findMany({ orderBy: [desc(clients.createdAt)] })
+      ),
+      withAppUser((tx) => tx.query.campaigns.findMany()),
+      withAppUser((tx) => tx.query.whatsappEvents.findMany()),
+      withAppUser((tx) =>
+        tx
+          .select({
+            id: whatsappEvents.id,
+            contactName: whatsappEvents.contactName,
+            outcome: whatsappEvents.outcome,
+            occurredAt: whatsappEvents.occurredAt,
+            businessName: clients.businessName,
+          })
+          .from(whatsappEvents)
+          .innerJoin(clients, eq(whatsappEvents.clientId, clients.id))
+          .orderBy(desc(whatsappEvents.occurredAt))
+          .limit(5)
+      ),
+      withAppUser((tx) => tx.query.campaignStats.findMany()),
+    ]);
+
+  // Alerts: clients needing follow-up, stale campaigns, quiet clients —
+  // real derived lists, not just counts.
+  const now = new Date().getTime();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const clientById = new Map(allClients.map((c) => [c.id, c]));
+  const campaignById = new Map(allCampaigns.map((c) => [c.id, c]));
+
+  const latestStatByCampaign = new Map<string, string>();
+  for (const stat of allStats) {
+    const current = latestStatByCampaign.get(stat.campaignId);
+    if (!current || stat.statDate > current) {
+      latestStatByCampaign.set(stat.campaignId, stat.statDate);
+    }
+  }
+  const staleCampaigns = allCampaigns.filter((c) => {
+    if (c.status !== "activa") return false;
+    const latest = latestStatByCampaign.get(c.id);
+    if (!latest) return true;
+    return now - new Date(latest).getTime() > 7 * DAY_MS;
+  });
+
+  const latestEventByClient = new Map<string, number>();
+  for (const event of allEvents) {
+    const t = new Date(event.occurredAt).getTime();
+    const current = latestEventByClient.get(event.clientId);
+    if (!current || t > current) {
+      latestEventByClient.set(event.clientId, t);
+    }
+  }
+  const quietClients = allClients.filter((c) => {
+    if (c.status !== "activo") return false;
+    const latest = latestEventByClient.get(c.id);
+    if (!latest) return true;
+    return now - latest > 14 * DAY_MS;
+  });
+
+  const attentionClients = allClients.filter((c) =>
+    ["en_gracia", "suspendido"].includes(c.status)
+  );
+
+  // Aggregated reporting: last-30-days spend/clicks/impressions per client,
+  // blended CTR, sorted by spend desc.
+  const thirtyDaysAgo = now - 30 * DAY_MS;
+  const rollupByClient = new Map<
+    string,
+    { impressions: number; clicks: number; spendMxnCents: number }
+  >();
+  for (const stat of allStats) {
+    if (new Date(stat.statDate).getTime() < thirtyDaysAgo) continue;
+    const campaign = campaignById.get(stat.campaignId);
+    if (!campaign) continue;
+    const entry = rollupByClient.get(campaign.clientId) ?? {
+      impressions: 0,
+      clicks: 0,
+      spendMxnCents: 0,
+    };
+    entry.impressions += stat.impressions;
+    entry.clicks += stat.clicks;
+    entry.spendMxnCents += stat.spendMxnCents;
+    rollupByClient.set(campaign.clientId, entry);
+  }
+  const clientRollups = Array.from(rollupByClient.entries())
+    .map(([clientId, totals]) => ({
+      client: clientById.get(clientId),
+      ...totals,
+      ctr: totals.impressions > 0 ? (totals.clicks / totals.impressions) * 100 : 0,
+    }))
+    .filter((row) => row.client)
+    .sort((a, b) => b.spendMxnCents - a.spendMxnCents);
 
   const totalClients = allClients.length;
   const activeClients = allClients.filter((c) => c.status === "activo").length;
@@ -206,6 +278,57 @@ export default async function AdminResumenPage() {
           href="/admin/campanas"
         />
       </div>
+
+      {(attentionClients.length > 0 ||
+        staleCampaigns.length > 0 ||
+        quietClients.length > 0) && (
+        <div className={`flex flex-col gap-4 rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
+          <div className="flex items-center gap-2">
+            <TriangleAlert size={16} strokeWidth={2} className="text-[#a5790a]" />
+            <h2 className="text-sm font-semibold text-gray-900">
+              Requiere atención
+            </h2>
+          </div>
+          <div className="flex flex-col divide-y divide-gray-100">
+            {attentionClients.map((c) => (
+              <Link
+                key={`attn-${c.id}`}
+                href={`/admin/clients/${c.id}`}
+                className="flex items-center justify-between py-2.5 text-sm hover:text-md-teal"
+              >
+                <span>{c.businessName}</span>
+                <span className="text-xs text-gray-400">
+                  Estado: {CLIENT_STATUS_META[c.status].label}
+                </span>
+              </Link>
+            ))}
+            {staleCampaigns.map((c) => (
+              <Link
+                key={`stale-${c.id}`}
+                href={`/admin/campanas?clientId=${c.clientId}`}
+                className="flex items-center justify-between py-2.5 text-sm hover:text-md-teal"
+              >
+                <span>{c.name}</span>
+                <span className="text-xs text-gray-400">
+                  Sin estadísticas hace más de 7 días
+                </span>
+              </Link>
+            ))}
+            {quietClients.map((c) => (
+              <Link
+                key={`quiet-${c.id}`}
+                href={`/admin/conversaciones?clientId=${c.id}`}
+                className="flex items-center justify-between py-2.5 text-sm hover:text-md-teal"
+              >
+                <span>{c.businessName}</span>
+                <span className="text-xs text-gray-400">
+                  Sin conversaciones hace más de 14 días
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className={`rounded-2xl bg-white p-6 lg:col-span-2 ${CARD_SHADOW}`}>
@@ -327,6 +450,54 @@ export default async function AdminResumenPage() {
           Ver todas las conversaciones →
         </Link>
       </div>
+
+      {clientRollups.length > 0 && (
+        <div className={`overflow-x-auto rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
+          <h2 className="text-sm font-semibold text-gray-900">
+            Rendimiento por cliente (últimos 30 días)
+          </h2>
+          <table className="mt-4 w-full text-left text-sm">
+            <thead className="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
+              <tr>
+                <th className="py-2 pr-4">Cliente</th>
+                <th className="py-2 pr-4">Impresiones</th>
+                <th className="py-2 pr-4">Clics</th>
+                <th className="py-2 pr-4">CTR</th>
+                <th className="py-2 pr-4">Gasto</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {clientRollups.map((row) => (
+                <tr key={row.client!.id}>
+                  <td className="py-2.5 pr-4">
+                    <Link
+                      href={`/admin/clients/${row.client!.id}`}
+                      className="font-medium text-gray-900 hover:text-md-teal hover:underline"
+                    >
+                      {row.client!.businessName}
+                    </Link>
+                  </td>
+                  <td className="py-2.5 pr-4 text-gray-600">
+                    {row.impressions.toLocaleString("es-MX")}
+                  </td>
+                  <td className="py-2.5 pr-4 text-gray-600">
+                    {row.clicks.toLocaleString("es-MX")}
+                  </td>
+                  <td className="py-2.5 pr-4 text-gray-600">
+                    {row.ctr.toFixed(2)}%
+                  </td>
+                  <td className="py-2.5 pr-4 text-gray-600">
+                    {(row.spendMxnCents / 100).toLocaleString("es-MX", {
+                      style: "currency",
+                      currency: "MXN",
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
