@@ -2,9 +2,11 @@ import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  getCampaignAdjustmentRequests,
   getCampaignsWithStats,
   getClientTasks,
   getContentItems,
+  getContentRequests,
   getWhatsappEvents,
 } from "@/app/dashboard/data";
 import { CLIENT_STATUS_META } from "@/app/dashboard/status";
@@ -53,19 +55,26 @@ export default async function AdminClientDetailPage({
     notFound();
   }
 
-  const [campaigns, contentItems, events, tasks, recentActivity] = await Promise.all([
-    getCampaignsWithStats(client.id),
-    getContentItems(client.id),
-    getWhatsappEvents(client.id),
-    getClientTasks(client.id),
-    withAppUser((tx) =>
-      tx.query.activityLog.findMany({
-        where: eq(activityLog.entityId, client.id),
-        orderBy: [desc(activityLog.createdAt)],
-        limit: 20,
-      })
-    ),
-  ]);
+  const [campaigns, contentItems, events, tasks, contentReqs, adjustmentReqs, recentActivity] =
+    await Promise.all([
+      getCampaignsWithStats(client.id),
+      getContentItems(client.id),
+      getWhatsappEvents(client.id),
+      getClientTasks(client.id),
+      getContentRequests(client.id),
+      getCampaignAdjustmentRequests(client.id),
+      withAppUser((tx) =>
+        tx.query.activityLog.findMany({
+          where: eq(activityLog.entityId, client.id),
+          orderBy: [desc(activityLog.createdAt)],
+          limit: 20,
+        })
+      ),
+    ]);
+
+  const pendingRequests =
+    contentReqs.filter((r) => r.status === "pendiente").length +
+    adjustmentReqs.filter((r) => r.status === "pendiente").length;
 
   const statusMeta = CLIENT_STATUS_META[client.status];
   const planOptions = [
@@ -202,6 +211,25 @@ export default async function AdminClientDetailPage({
           </Link>
         </div>
       </details>
+
+      {(contentReqs.length > 0 || adjustmentReqs.length > 0) && (
+        <div className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
+          <div>
+            <p className="text-sm font-semibold text-gray-900">Solicitudes</p>
+            <p className="text-xs text-gray-500">
+              {pendingRequests > 0
+                ? `${pendingRequests} pendiente${pendingRequests === 1 ? "" : "s"}`
+                : "Todas revisadas"}
+            </p>
+          </div>
+          <Link
+            href={`/admin/solicitudes?clientId=${client.id}`}
+            className="w-fit rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+          >
+            Ver solicitudes →
+          </Link>
+        </div>
+      )}
 
       <details className={`rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
         <summary className="cursor-pointer text-sm font-semibold text-gray-900">

@@ -3,6 +3,7 @@
 import {
   CalendarDays,
   ClipboardList,
+  Inbox,
   LayoutDashboard,
   Megaphone,
   MessageCircle,
@@ -41,6 +42,12 @@ const NAV_GROUPS = [
         href: "/admin/calendario",
         label: "Calendario",
         icon: CalendarDays,
+        exact: false,
+      },
+      {
+        href: "/admin/solicitudes",
+        label: "Solicitudes",
+        icon: Inbox,
         exact: false,
       },
     ],
