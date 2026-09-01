@@ -8,6 +8,7 @@ import {
   campaignAdjustmentRequests,
   campaignStats,
   campaigns,
+  clientTasks,
   clients,
   contentItems,
   contentRequests,
@@ -137,6 +138,15 @@ export async function getPayments(clientId: string) {
     tx.query.payments.findMany({
       where: eq(payments.clientId, clientId),
       orderBy: [desc(payments.paidAt)],
+    })
+  );
+}
+
+export async function getClientTasks(clientId: string) {
+  return withAppUser((tx) =>
+    tx.query.clientTasks.findMany({
+      where: eq(clientTasks.clientId, clientId),
+      orderBy: [desc(clientTasks.createdAt)],
     })
   );
 }

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-session";
-import { clients, supportAccessLog } from "@/db/schema";
+import { clientTasks, clients, supportAccessLog } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { logActivity } from "@/lib/activity-log";
 import { isStaffUser } from "@/lib/staff";
@@ -147,6 +147,57 @@ export async function updateClientProfile(formData: FormData) {
   });
 
   revalidatePath("/admin/clients");
+  revalidatePath(`/admin/clients/${clientId}`);
+}
+
+export async function createClientTask(formData: FormData) {
+  if (!(await isStaffUser())) {
+    throw new Error("No autorizado");
+  }
+
+  const clientId = String(formData.get("clientId") ?? "");
+  const title = String(formData.get("title") ?? "").trim();
+  if (!clientId || !title) {
+    throw new Error("Falta el pendiente");
+  }
+
+  await withAppUser((tx) => tx.insert(clientTasks).values({ clientId, title }));
+
+  revalidatePath(`/admin/clients/${clientId}`);
+}
+
+export async function toggleClientTask(formData: FormData) {
+  if (!(await isStaffUser())) {
+    throw new Error("No autorizado");
+  }
+
+  const id = String(formData.get("id") ?? "");
+  const clientId = String(formData.get("clientId") ?? "");
+  const done = formData.get("done") === "true";
+  if (!id) {
+    throw new Error("Falta el pendiente");
+  }
+
+  await withAppUser((tx) =>
+    tx.update(clientTasks).set({ done: !done }).where(eq(clientTasks.id, id))
+  );
+
+  revalidatePath(`/admin/clients/${clientId}`);
+}
+
+export async function deleteClientTask(formData: FormData) {
+  if (!(await isStaffUser())) {
+    throw new Error("No autorizado");
+  }
+
+  const id = String(formData.get("id") ?? "");
+  const clientId = String(formData.get("clientId") ?? "");
+  if (!id) {
+    throw new Error("Falta el pendiente");
+  }
+
+  await withAppUser((tx) => tx.delete(clientTasks).where(eq(clientTasks.id, id)));
+
   revalidatePath(`/admin/clients/${clientId}`);
 }
 

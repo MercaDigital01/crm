@@ -3,15 +3,25 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   getCampaignsWithStats,
+  getClientTasks,
   getContentItems,
   getWhatsappEvents,
 } from "@/app/dashboard/data";
 import { CLIENT_STATUS_META } from "@/app/dashboard/status";
+import { DeleteButton } from "@/components/admin/DeleteButton";
 import { SelectAndSubmit } from "@/components/admin/SelectAndSubmit";
+import { TaskCheckbox } from "@/components/admin/TaskCheckbox";
 import { activityLog, clients } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { requireStaffOrRedirect } from "@/lib/staff";
-import { updateClientPlan, updateClientProfile, updateClientStatus } from "../actions";
+import {
+  createClientTask,
+  deleteClientTask,
+  toggleClientTask,
+  updateClientPlan,
+  updateClientProfile,
+  updateClientStatus,
+} from "../actions";
 
 const STATUS_OPTIONS = Object.entries(CLIENT_STATUS_META).map(
   ([value, meta]) => ({ value, label: meta.label })
@@ -43,10 +53,11 @@ export default async function AdminClientDetailPage({
     notFound();
   }
 
-  const [campaigns, contentItems, events, recentActivity] = await Promise.all([
+  const [campaigns, contentItems, events, tasks, recentActivity] = await Promise.all([
     getCampaignsWithStats(client.id),
     getContentItems(client.id),
     getWhatsappEvents(client.id),
+    getClientTasks(client.id),
     withAppUser((tx) =>
       tx.query.activityLog.findMany({
         where: eq(activityLog.entityId, client.id),
@@ -243,6 +254,59 @@ export default async function AdminClientDetailPage({
           >
             Gestionar conversaciones →
           </Link>
+        </div>
+      </details>
+
+      <details open className={`rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
+        <summary className="cursor-pointer text-sm font-semibold text-gray-900">
+          Pendientes internos ({tasks.filter((t) => !t.done).length})
+        </summary>
+        <div className="mt-4 flex flex-col gap-3">
+          <form action={createClientTask} className="flex gap-2">
+            <input type="hidden" name="clientId" value={client.id} />
+            <input
+              name="title"
+              required
+              placeholder="Ej. Pedir fotos del local"
+              className="w-full max-w-sm rounded border border-gray-300 px-3 py-2 text-sm"
+            />
+            <button
+              type="submit"
+              className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white hover:bg-md-teal/90"
+            >
+              Agregar
+            </button>
+          </form>
+          {tasks.length === 0 ? (
+            <p className="text-sm text-gray-500">Sin pendientes.</p>
+          ) : (
+            <div className="flex flex-col divide-y divide-gray-100">
+              {tasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="flex items-center gap-3 border-t border-gray-100 py-2.5 first:border-t-0"
+                >
+                  <TaskCheckbox
+                    action={toggleClientTask}
+                    id={task.id}
+                    clientId={client.id}
+                    done={task.done}
+                  />
+                  <span
+                    className={`flex-1 text-sm ${task.done ? "text-gray-400 line-through" : "text-gray-900"}`}
+                  >
+                    {task.title}
+                  </span>
+                  <DeleteButton
+                    action={deleteClientTask}
+                    id={task.id}
+                    hiddenFields={{ clientId: client.id }}
+                    confirmMessage="¿Eliminar este pendiente?"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </details>
 

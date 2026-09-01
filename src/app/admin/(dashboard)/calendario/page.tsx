@@ -1,12 +1,18 @@
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { getContentItems } from "@/app/dashboard/data";
 import { ClientPicker } from "@/components/admin/ClientPicker";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { EditorialMonthCalendar } from "@/components/admin/EditorialMonthCalendar";
 import { EditToggle } from "@/components/admin/EditToggle";
-import { clients } from "@/db/schema";
+import { clients, contentItems } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { requireStaffOrRedirect } from "@/lib/staff";
-import { createContentItem, deleteContentItem, updateContentItem } from "./actions";
+import {
+  createContentItem,
+  deleteContentItem,
+  duplicateContentItem,
+  updateContentItem,
+} from "./actions";
 
 const STATUS_OPTIONS = [
   { value: "borrador", label: "Borrador" },
@@ -29,9 +35,22 @@ export default async function AdminCalendarioPage({
 
   const { clientId } = await searchParams;
 
-  const allClients = await withAppUser((tx) =>
-    tx.query.clients.findMany({ orderBy: [asc(clients.businessName)] })
-  );
+  const [allClients, allItemsAllClients] = await Promise.all([
+    withAppUser((tx) =>
+      tx.query.clients.findMany({ orderBy: [asc(clients.businessName)] })
+    ),
+    withAppUser((tx) =>
+      tx
+        .select({
+          id: contentItems.id,
+          scheduledDate: contentItems.scheduledDate,
+          title: contentItems.title,
+          businessName: clients.businessName,
+        })
+        .from(contentItems)
+        .innerJoin(clients, eq(contentItems.clientId, clients.id))
+    ),
+  ]);
 
   const selectedClient = clientId
     ? allClients.find((client) => client.id === clientId)
@@ -49,6 +68,13 @@ export default async function AdminCalendarioPage({
           Elige un cliente para programar y revisar su calendario de
           contenido.
         </p>
+      </div>
+
+      <div className="rounded-2xl bg-white p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] md:p-6">
+        <h2 className="mb-2 text-sm font-semibold text-gray-900">
+          Tablero editorial (todos los clientes)
+        </h2>
+        <EditorialMonthCalendar items={allItemsAllClients} />
       </div>
 
       <ClientPicker clients={allClients} selectedClientId={selectedClient?.id} />
@@ -254,11 +280,41 @@ export default async function AdminCalendarioPage({
                       />
                     </td>
                     <td className="px-4 py-3">
-                      <DeleteButton
-                        action={deleteContentItem}
-                        id={item.id}
-                        confirmMessage={`¿Eliminar "${item.title}"?`}
-                      />
+                      <div className="flex items-center gap-2">
+                        {allClients.length > 1 && (
+                          <form action={duplicateContentItem} className="flex items-center gap-1">
+                            <input type="hidden" name="itemId" value={item.id} />
+                            <select
+                              name="targetClientId"
+                              required
+                              defaultValue=""
+                              className="rounded border border-gray-300 px-1.5 py-1 text-xs"
+                            >
+                              <option value="" disabled>
+                                Duplicar a…
+                              </option>
+                              {allClients
+                                .filter((c) => c.id !== selectedClient.id)
+                                .map((c) => (
+                                  <option key={c.id} value={c.id}>
+                                    {c.businessName}
+                                  </option>
+                                ))}
+                            </select>
+                            <button
+                              type="submit"
+                              className="rounded-full border border-gray-300 px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-100"
+                            >
+                              Ir
+                            </button>
+                          </form>
+                        )}
+                        <DeleteButton
+                          action={deleteContentItem}
+                          id={item.id}
+                          confirmMessage={`¿Eliminar "${item.title}"?`}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}

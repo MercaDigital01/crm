@@ -100,6 +100,43 @@ export async function deleteCampaign(formData: FormData) {
   revalidatePath("/admin/campanas");
 }
 
+export async function duplicateCampaign(formData: FormData) {
+  if (!(await isStaffUser())) {
+    throw new Error("No autorizado");
+  }
+
+  const campaignId = String(formData.get("campaignId") ?? "");
+  const targetClientId = String(formData.get("targetClientId") ?? "");
+  if (!campaignId || !targetClientId) {
+    throw new Error("Falta el cliente destino");
+  }
+
+  const source = await withAppUser((tx) =>
+    tx.query.campaigns.findFirst({ where: eq(campaigns.id, campaignId) })
+  );
+  if (!source) {
+    throw new Error("Campaña no encontrada");
+  }
+
+  await withAppUser((tx) =>
+    tx.insert(campaigns).values({
+      clientId: targetClientId,
+      platform: source.platform,
+      name: source.name,
+      objective: source.objective,
+    })
+  );
+
+  await logActivity({
+    action: "duplicate",
+    entityType: "campaign",
+    entityId: campaignId,
+    summary: `Duplicó la campaña "${source.name}" a otro cliente`,
+  });
+
+  revalidatePath("/admin/campanas");
+}
+
 export async function updateCampaignStat(formData: FormData) {
   if (!(await isStaffUser())) {
     throw new Error("No autorizado");

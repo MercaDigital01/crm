@@ -11,6 +11,7 @@ import {
   createCampaignStat,
   deleteCampaign,
   deleteCampaignStat,
+  duplicateCampaign,
   updateCampaign,
   updateCampaignStat,
 } from "./actions";
@@ -192,6 +193,41 @@ export default async function AdminCampanasPage({
                       />
                     </div>
                   </div>
+
+                  {allClients.length > 1 && (
+                    <form
+                      action={duplicateCampaign}
+                      className="flex items-center gap-2 border-t border-gray-100 pt-3"
+                    >
+                      <input type="hidden" name="campaignId" value={campaign.id} />
+                      <label className="text-xs text-gray-500">
+                        Duplicar a
+                      </label>
+                      <select
+                        name="targetClientId"
+                        required
+                        defaultValue=""
+                        className="rounded border border-gray-300 px-2 py-1 text-xs"
+                      >
+                        <option value="" disabled>
+                          Elegir cliente…
+                        </option>
+                        {allClients
+                          .filter((c) => c.id !== selectedClient.id)
+                          .map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.businessName}
+                            </option>
+                          ))}
+                      </select>
+                      <button
+                        type="submit"
+                        className="rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-100"
+                      >
+                        Duplicar
+                      </button>
+                    </form>
+                  )}
 
                   {campaign.stats.length > 0 && (
                     <details className="border-t border-gray-100 pt-3">

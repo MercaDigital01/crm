@@ -51,6 +51,46 @@ export async function createContentItem(formData: FormData) {
   revalidatePath("/admin/calendario");
 }
 
+export async function duplicateContentItem(formData: FormData) {
+  if (!(await isStaffUser())) {
+    throw new Error("No autorizado");
+  }
+
+  const itemId = String(formData.get("itemId") ?? "");
+  const targetClientId = String(formData.get("targetClientId") ?? "");
+  if (!itemId || !targetClientId) {
+    throw new Error("Falta el cliente destino");
+  }
+
+  const source = await withAppUser((tx) =>
+    tx.query.contentItems.findFirst({ where: eq(contentItems.id, itemId) })
+  );
+  if (!source) {
+    throw new Error("Contenido no encontrado");
+  }
+
+  await withAppUser((tx) =>
+    tx.insert(contentItems).values({
+      clientId: targetClientId,
+      scheduledDate: source.scheduledDate,
+      platform: source.platform,
+      pillar: source.pillar,
+      title: source.title,
+      status: "borrador",
+      format: source.format,
+    })
+  );
+
+  await logActivity({
+    action: "duplicate",
+    entityType: "content_item",
+    entityId: itemId,
+    summary: `Duplicó "${source.title}" a otro cliente`,
+  });
+
+  revalidatePath("/admin/calendario");
+}
+
 export async function updateContentItem(formData: FormData) {
   if (!(await isStaffUser())) {
     throw new Error("No autorizado");

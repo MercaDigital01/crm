@@ -460,6 +460,30 @@ export const activityLog = pgTable(
   ]
 );
 
+// Internal staff checklist per client — not client-visible, staff-only.
+export const clientTasks = pgTable(
+  "client_tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clientId: uuid("client_id")
+      .notNull()
+      .references(() => clients.id),
+    title: text("title").notNull(),
+    done: boolean("done").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  () => [
+    pgPolicy("client_tasks_staff_only", {
+      for: "all",
+      to: appRuntime,
+      using: sql`current_setting('app.is_staff', true) = 'true'`,
+      withCheck: sql`current_setting('app.is_staff', true) = 'true'`,
+    }),
+  ]
+);
+
 // Vista de Soporte audit trail (docs/terminos-de-servicio.md §10.2). Staff-only
 // by design — no "own row" policy exists here, a client must never be able to
 // read who accessed their account.
