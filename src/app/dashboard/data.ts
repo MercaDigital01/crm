@@ -5,10 +5,12 @@ import { cache } from "react";
 import { db } from "@/db";
 import {
   agentConfigs,
+  campaignAdjustmentRequests,
   campaignStats,
   campaigns,
   clients,
   contentItems,
+  contentRequests,
   plans,
   whatsappEvents,
 } from "@/db/schema";
@@ -97,6 +99,24 @@ export async function getContentItems(clientId: string) {
     tx.query.contentItems.findMany({
       where: eq(contentItems.clientId, clientId),
       orderBy: [desc(contentItems.scheduledDate)],
+    })
+  );
+}
+
+export async function getContentRequests(clientId: string) {
+  return withAppUser((tx) =>
+    tx.query.contentRequests.findMany({
+      where: eq(contentRequests.clientId, clientId),
+      orderBy: [desc(contentRequests.createdAt)],
+    })
+  );
+}
+
+export async function getCampaignAdjustmentRequests(clientId: string) {
+  return withAppUser((tx) =>
+    tx.query.campaignAdjustmentRequests.findMany({
+      where: eq(campaignAdjustmentRequests.clientId, clientId),
+      orderBy: [desc(campaignAdjustmentRequests.createdAt)],
     })
   );
 }

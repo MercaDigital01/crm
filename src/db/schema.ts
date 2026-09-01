@@ -292,6 +292,82 @@ export const agentConfigs = pgTable(
   ]
 );
 
+export const requestStatus = pgEnum("request_status", [
+  "pendiente",
+  "revisado",
+  "descartado",
+]);
+
+export const contentRequests = pgTable(
+  "content_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clientId: uuid("client_id")
+      .notNull()
+      .references(() => clients.id),
+    title: text("title").notNull(),
+    notes: text("notes"),
+    status: requestStatus("status").notNull().default("pendiente"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    pgPolicy("content_requests_own_client", {
+      for: "all",
+      to: appRuntime,
+      using: sql`${table.clientId} in (select id from clients where clerk_user_id = current_setting('app.clerk_user_id', true))`,
+      withCheck: sql`${table.clientId} in (select id from clients where clerk_user_id = current_setting('app.clerk_user_id', true))`,
+    }),
+    pgPolicy("content_requests_staff_full_access", {
+      for: "all",
+      to: appRuntime,
+      using: sql`current_setting('app.is_staff', true) = 'true'`,
+      withCheck: sql`current_setting('app.is_staff', true) = 'true'`,
+    }),
+  ]
+);
+
+export const campaignAdjustmentType = pgEnum("campaign_adjustment_type", [
+  "pausar",
+  "aumentar_presupuesto",
+  "reducir_presupuesto",
+  "otro",
+]);
+
+export const campaignAdjustmentRequests = pgTable(
+  "campaign_adjustment_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clientId: uuid("client_id")
+      .notNull()
+      .references(() => clients.id),
+    campaignId: uuid("campaign_id")
+      .notNull()
+      .references(() => campaigns.id),
+    requestType: campaignAdjustmentType("request_type").notNull(),
+    notes: text("notes"),
+    status: requestStatus("status").notNull().default("pendiente"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    pgPolicy("campaign_adjustment_requests_own_client", {
+      for: "all",
+      to: appRuntime,
+      using: sql`${table.clientId} in (select id from clients where clerk_user_id = current_setting('app.clerk_user_id', true))`,
+      withCheck: sql`${table.clientId} in (select id from clients where clerk_user_id = current_setting('app.clerk_user_id', true))`,
+    }),
+    pgPolicy("campaign_adjustment_requests_staff_full_access", {
+      for: "all",
+      to: appRuntime,
+      using: sql`current_setting('app.is_staff', true) = 'true'`,
+      withCheck: sql`current_setting('app.is_staff', true) = 'true'`,
+    }),
+  ]
+);
+
 // Vista de Soporte audit trail (docs/terminos-de-servicio.md §10.2). Staff-only
 // by design — no "own row" policy exists here, a client must never be able to
 // read who accessed their account.
