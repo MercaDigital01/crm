@@ -120,6 +120,7 @@ export async function getWhatsappEvents(clientId: string) {
 
 export type CampaignWithLatestStat = typeof campaigns.$inferSelect & {
   latestStat: typeof campaignStats.$inferSelect | null;
+  stats: (typeof campaignStats.$inferSelect)[];
 };
 
 export async function getCampaignsWithStats(
@@ -139,15 +140,51 @@ export async function getCampaignsWithStats(
     });
 
     const latestByCampaign = new Map<string, (typeof stats)[number]>();
+    const statsByCampaign = new Map<string, (typeof stats)[number][]>();
     for (const stat of stats) {
       if (!latestByCampaign.has(stat.campaignId)) {
         latestByCampaign.set(stat.campaignId, stat);
       }
+      const bucket = statsByCampaign.get(stat.campaignId) ?? [];
+      bucket.push(stat);
+      statsByCampaign.set(stat.campaignId, bucket);
     }
 
     return rows.map((c) => ({
       ...c,
       latestStat: latestByCampaign.get(c.id) ?? null,
+      // Ascending by date, easier for a trend chart to consume than the
+      // descending order used for `latestStat` lookup above.
+      stats: (statsByCampaign.get(c.id) ?? []).slice().reverse(),
     }));
   });
+}
+
+export async function getLatestActivityTimestamps(clientId: string) {
+  const [latestContent, latestEvent, latestCampaign] = await Promise.all([
+    withAppUser((tx) =>
+      tx.query.contentItems.findFirst({
+        where: eq(contentItems.clientId, clientId),
+        orderBy: [desc(contentItems.createdAt)],
+      })
+    ),
+    withAppUser((tx) =>
+      tx.query.whatsappEvents.findFirst({
+        where: eq(whatsappEvents.clientId, clientId),
+        orderBy: [desc(whatsappEvents.createdAt)],
+      })
+    ),
+    withAppUser((tx) =>
+      tx.query.campaigns.findFirst({
+        where: eq(campaigns.clientId, clientId),
+        orderBy: [desc(campaigns.createdAt)],
+      })
+    ),
+  ]);
+
+  return {
+    "/dashboard/calendario": latestContent?.createdAt.toISOString() ?? null,
+    "/dashboard/conversaciones": latestEvent?.createdAt.toISOString() ?? null,
+    "/dashboard/campanas": latestCampaign?.createdAt.toISOString() ?? null,
+  };
 }

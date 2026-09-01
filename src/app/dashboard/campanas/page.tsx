@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { CampaignStatsPanel } from "@/components/dashboard/CampaignStatsPanel";
 import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
 import { isStaffUser } from "@/lib/staff";
 import { getCampaignsWithStats, getViewedClient } from "../data";
@@ -62,46 +63,8 @@ export default async function CampanasPage() {
                 </p>
               )}
 
-              {campaign.latestStat ? (
-                <div className="mt-2 grid grid-cols-2 gap-4 border-t border-gray-100 pt-4 sm:grid-cols-4">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
-                      Impresiones
-                    </span>
-                    <span className="text-sm font-semibold text-gray-900">
-                      {campaign.latestStat.impressions.toLocaleString("es-MX")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
-                      Clics
-                    </span>
-                    <span className="text-sm font-semibold text-gray-900">
-                      {campaign.latestStat.clicks.toLocaleString("es-MX")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
-                      Gasto
-                    </span>
-                    <span className="text-sm font-semibold text-gray-900">
-                      {(campaign.latestStat.spendMxnCents / 100).toLocaleString(
-                        "es-MX",
-                        { style: "currency", currency: "MXN" }
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
-                      CTR
-                    </span>
-                    <span className="text-sm font-semibold text-gray-900">
-                      {campaign.latestStat.ctr != null
-                        ? `${(campaign.latestStat.ctr * 100).toFixed(2)}%`
-                        : "—"}
-                    </span>
-                  </div>
-                </div>
+              {campaign.stats.length > 0 ? (
+                <CampaignStatsPanel stats={campaign.stats} />
               ) : (
                 <p className="mt-2 border-t border-gray-100 pt-4 text-xs leading-relaxed text-gray-500">
                   Todavía no hay estadísticas cargadas para esta campaña.

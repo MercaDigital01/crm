@@ -7,7 +7,7 @@ import { exitSupportView } from "@/app/admin/(dashboard)/clients/actions";
 import { ClientSidebar } from "@/components/dashboard/ClientSidebar";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 import { isStaffUser } from "@/lib/staff";
-import { getViewedClient } from "./data";
+import { getLatestActivityTimestamps, getViewedClient } from "./data";
 import { CLIENT_STATUS_META } from "./status";
 
 const STATUS_DOT = {
@@ -31,6 +31,9 @@ export default async function DashboardLayout({
     userId ?? null
   );
   const statusMeta = ownClient ? CLIENT_STATUS_META[ownClient.status] : null;
+  const latestActivity = ownClient
+    ? await getLatestActivityTimestamps(ownClient.id)
+    : {};
 
   return (
     <div className="flex min-h-screen flex-1 bg-gray-50 text-gray-900">
@@ -46,7 +49,7 @@ export default async function DashboardLayout({
           />
         </Link>
 
-        <ClientSidebar />
+        <ClientSidebar latestActivity={latestActivity} />
 
         <div className="mt-auto p-3">
           <div className="flex items-center justify-between gap-2 rounded-2xl bg-gray-100 p-3">
@@ -98,7 +101,7 @@ export default async function DashboardLayout({
           <UserButton />
         </header>
         <div className="border-b border-gray-200 bg-white px-3 py-2 md:hidden">
-          <DashboardTabs />
+          <DashboardTabs latestActivity={latestActivity} />
         </div>
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">

@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { CalendarDays, MessageCircle, Megaphone } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
 import { isStaffUser } from "@/lib/staff";
@@ -64,6 +65,15 @@ export default async function DashboardResumenPage() {
   const statusMeta = CLIENT_STATUS_META[ownClient.status];
   const activeCampaigns = campaigns.filter((c) => c.status === "activa");
 
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const nextContentItem = contentItems
+    .filter((item) => new Date(item.scheduledDate) >= todayStart)
+    .sort(
+      (a, b) =>
+        new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
+    )[0];
+
   return (
     <div className="flex flex-col gap-10">
       <div>
@@ -90,6 +100,32 @@ export default async function DashboardResumenPage() {
           value={activeCampaigns.length}
         />
       </div>
+
+      {nextContentItem && (
+        <div className={`flex flex-col gap-3 rounded-2xl bg-white p-6 md:p-8 sm:flex-row sm:items-center sm:justify-between ${CARD_SHADOW}`}>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+              Próxima publicación
+            </span>
+            <p className="text-lg font-semibold text-gray-900">
+              {nextContentItem.title}
+            </p>
+            <p className="text-sm text-gray-500">
+              {new Date(nextContentItem.scheduledDate).toLocaleDateString(
+                "es-MX",
+                { weekday: "long", day: "2-digit", month: "long" }
+              )}{" "}
+              · {nextContentItem.platform}
+            </p>
+          </div>
+          <Link
+            href="/dashboard/calendario"
+            className="w-fit shrink-0 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+          >
+            Ver calendario
+          </Link>
+        </div>
+      )}
 
       <div className={`rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`}>
         <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">

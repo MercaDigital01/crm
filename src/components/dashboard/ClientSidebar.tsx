@@ -9,6 +9,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  type ActivityTimestamps,
+  useUnreadSections,
+} from "./useUnreadSections";
 
 const NAV = [
   { href: "/dashboard", label: "Resumen", icon: LayoutDashboard, exact: true },
@@ -33,18 +37,25 @@ const NAV = [
   { href: "/dashboard/pago", label: "Pago", icon: Wallet, exact: false },
 ] as const;
 
-export function ClientSidebar() {
+export function ClientSidebar({
+  latestActivity = {},
+}: {
+  latestActivity?: ActivityTimestamps;
+}) {
   const pathname = usePathname();
+  const { unread, markSeen } = useUnreadSections(latestActivity);
 
   return (
     <nav className="flex flex-col gap-1 px-3">
       {NAV.map(({ href, label, icon: Icon, exact }) => {
         const isActive = exact ? pathname === href : pathname.startsWith(href);
+        const isUnread = !isActive && unread.has(href);
         return (
           <Link
             key={href}
             href={href}
             aria-current={isActive ? "page" : undefined}
+            onClick={() => markSeen(href)}
             className={`flex items-center gap-3 rounded-xl border-l-4 py-2.5 pl-3 pr-3 text-sm font-medium transition-colors ${
               isActive
                 ? "border-md-teal bg-md-teal/10 text-gray-900"
@@ -57,6 +68,9 @@ export function ClientSidebar() {
               className={`shrink-0 ${isActive ? "text-md-teal" : ""}`}
             />
             <span className={isActive ? "font-semibold" : ""}>{label}</span>
+            {isUnread && (
+              <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-md-teal" />
+            )}
           </Link>
         );
       })}
