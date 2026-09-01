@@ -1,4 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
+import { Bot } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
 import { isStaffUser } from "@/lib/staff";
@@ -31,9 +33,18 @@ export default async function ConversacionesPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <h1 className="text-2xl font-semibold text-gray-900">
-        Conversaciones y ventas.
-      </h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Conversaciones y ventas.
+        </h1>
+        <Link
+          href="/dashboard/conversaciones/agente"
+          className="flex w-fit items-center gap-2 rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90"
+        >
+          <Bot size={16} strokeWidth={2} />
+          Configurar agente de IA
+        </Link>
+      </div>
 
       {events.length === 0 ? (
         <p className="max-w-xl text-base leading-relaxed text-gray-500">
