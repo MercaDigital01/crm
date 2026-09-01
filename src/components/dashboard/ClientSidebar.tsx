@@ -45,12 +45,14 @@ const NAV = [
 ] as const;
 
 export function ClientSidebar({
+  clientId,
   latestActivity = {},
 }: {
+  clientId: string;
   latestActivity?: ActivityTimestamps;
 }) {
   const pathname = usePathname();
-  const { unread, markSeen } = useUnreadSections(latestActivity);
+  const { unread, markSeen } = useUnreadSections(clientId, latestActivity);
 
   return (
     <nav className="flex flex-col gap-1 px-3">

@@ -4,6 +4,7 @@ import { ClientPicker } from "@/components/admin/ClientPicker";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { EditorialMonthCalendar } from "@/components/admin/EditorialMonthCalendar";
 import { EditToggle } from "@/components/admin/EditToggle";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { clients, contentItems } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { requireStaffOrRedirect } from "@/lib/staff";
@@ -159,12 +160,9 @@ export default async function AdminCalendarioPage({
                 ))}
               </select>
             </div>
-            <button
-              type="submit"
-              className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90 sm:col-span-2 lg:col-span-6 lg:w-fit"
-            >
+            <SubmitButton className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90 sm:col-span-2 lg:col-span-6 lg:w-fit">
               Programar contenido
-            </button>
+            </SubmitButton>
           </form>
 
           <div className="overflow-x-auto rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)]">

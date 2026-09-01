@@ -1,6 +1,7 @@
 import { asc } from "drizzle-orm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { EditToggle } from "@/components/admin/EditToggle";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { plans } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { requireStaffOrRedirect } from "@/lib/staff";
@@ -59,12 +60,9 @@ export default async function AdminPlanesPage() {
             className="rounded border border-gray-300 px-3 py-2 text-sm"
           />
         </div>
-        <button
-          type="submit"
-          className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90"
-        >
+        <SubmitButton className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90">
           Crear plan
-        </button>
+        </SubmitButton>
       </form>
 
       <div className="overflow-x-auto rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)]">

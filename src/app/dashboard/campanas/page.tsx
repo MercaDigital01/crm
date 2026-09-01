@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { CampaignStatsPanel } from "@/components/dashboard/CampaignStatsPanel";
 import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
 import { PrintButton } from "@/components/dashboard/PrintButton";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { isStaffUser } from "@/lib/staff";
 import {
   getCampaignAdjustmentRequests,
@@ -153,12 +154,9 @@ export default async function CampanasPage() {
                     placeholder="Notas (opcional)"
                     className="rounded border border-gray-300 px-3 py-2 text-sm"
                   />
-                  <button
-                    type="submit"
-                    className="w-fit rounded-full bg-md-teal px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-md-teal/90"
-                  >
+                  <SubmitButton className="w-fit rounded-full bg-md-teal px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-md-teal/90">
                     Enviar solicitud
-                  </button>
+                  </SubmitButton>
                 </form>
               </details>
             </div>

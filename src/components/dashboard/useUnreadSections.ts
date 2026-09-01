@@ -7,11 +7,20 @@ const SYNC_EVENT = "md-unread-sections-updated";
 
 export type ActivityTimestamps = Record<string, string | null>;
 
-function computeUnreadKey(latestActivity: ActivityTimestamps): string {
+function storageKey(clientId: string, href: string) {
+  // Scoped by client id so switching accounts via Vista de Soporte never
+  // shows one client's "unread" state as if it belonged to another.
+  return `${STORAGE_PREFIX}${clientId}_${href}`;
+}
+
+function computeUnreadKey(
+  clientId: string,
+  latestActivity: ActivityTimestamps
+): string {
   const unreadHrefs: string[] = [];
   for (const [href, latest] of Object.entries(latestActivity)) {
     if (!latest) continue;
-    const lastSeen = window.localStorage.getItem(STORAGE_PREFIX + href);
+    const lastSeen = window.localStorage.getItem(storageKey(clientId, href));
     if (!lastSeen || new Date(latest).getTime() > Number(lastSeen)) {
       unreadHrefs.push(href);
     }
@@ -35,18 +44,24 @@ function getServerSnapshot() {
   return "";
 }
 
-export function useUnreadSections(latestActivity: ActivityTimestamps) {
+export function useUnreadSections(
+  clientId: string,
+  latestActivity: ActivityTimestamps
+) {
   const key = useSyncExternalStore(
     subscribe,
-    () => computeUnreadKey(latestActivity),
+    () => computeUnreadKey(clientId, latestActivity),
     getServerSnapshot
   );
   const unread = useMemo(() => new Set(key ? key.split(",") : []), [key]);
 
-  const markSeen = useCallback((href: string) => {
-    window.localStorage.setItem(STORAGE_PREFIX + href, Date.now().toString());
-    window.dispatchEvent(new Event(SYNC_EVENT));
-  }, []);
+  const markSeen = useCallback(
+    (href: string) => {
+      window.localStorage.setItem(storageKey(clientId, href), Date.now().toString());
+      window.dispatchEvent(new Event(SYNC_EVENT));
+    },
+    [clientId]
+  );
 
   return { unread, markSeen };
 }

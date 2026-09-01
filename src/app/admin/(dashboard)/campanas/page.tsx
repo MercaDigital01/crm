@@ -3,6 +3,7 @@ import { getCampaignsWithStats } from "@/app/dashboard/data";
 import { ClientPicker } from "@/components/admin/ClientPicker";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { EditToggle } from "@/components/admin/EditToggle";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { clients } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { requireStaffOrRedirect } from "@/lib/staff";
@@ -102,12 +103,9 @@ export default async function AdminCampanasPage({
                 className="rounded border border-gray-300 px-3 py-2 text-sm"
               />
             </div>
-            <button
-              type="submit"
-              className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90"
-            >
+            <SubmitButton className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90">
               Crear campaña
-            </button>
+            </SubmitButton>
           </form>
 
           <div className="flex flex-col gap-4">
@@ -394,12 +392,9 @@ export default async function AdminCampanasPage({
                         className="rounded border border-gray-300 px-2 py-1.5 text-xs"
                       />
                     </div>
-                    <button
-                      type="submit"
-                      className="col-span-2 mt-1 rounded-full border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 sm:col-span-4 lg:col-span-7 lg:w-fit"
-                    >
+                    <SubmitButton className="col-span-2 mt-1 rounded-full border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 sm:col-span-4 lg:col-span-7 lg:w-fit">
                       Registrar estadística
-                    </button>
+                    </SubmitButton>
                   </form>
 
                   <details className="mt-3 border-t border-gray-100 pt-3">
@@ -415,12 +410,9 @@ export default async function AdminCampanasPage({
                         placeholder={"fecha,impresiones,clics,gasto,conversiones\n2026-01-01,1200,34,150.00,2"}
                         className="rounded border border-gray-300 px-3 py-2 font-mono text-xs"
                       />
-                      <button
-                        type="submit"
-                        className="w-fit rounded-full border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100"
-                      >
+                      <SubmitButton className="w-fit rounded-full border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100">
                         Importar
-                      </button>
+                      </SubmitButton>
                     </form>
                   </details>
                 </div>

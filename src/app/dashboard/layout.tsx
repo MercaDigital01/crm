@@ -49,7 +49,7 @@ export default async function DashboardLayout({
           />
         </Link>
 
-        <ClientSidebar latestActivity={latestActivity} />
+        <ClientSidebar clientId={ownClient?.id ?? ""} latestActivity={latestActivity} />
 
         <div className="mt-auto p-3">
           <div className="flex items-center justify-between gap-2 rounded-2xl bg-gray-100 p-3">
@@ -101,7 +101,7 @@ export default async function DashboardLayout({
           <UserButton />
         </header>
         <div className="border-b border-gray-200 bg-white px-3 py-2 md:hidden print:hidden">
-          <DashboardTabs latestActivity={latestActivity} />
+          <DashboardTabs clientId={ownClient?.id ?? ""} latestActivity={latestActivity} />
         </div>
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">

@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import type { agentConfigs } from "@/db/schema";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 const CARD_SHADOW = "shadow-[0_2px_10px_rgba(0,0,0,0.02)]";
 const CARD = `flex flex-col gap-5 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`;
@@ -25,17 +26,21 @@ const GOAL_OPTIONS = [
 ] as const;
 
 function Field({
+  id,
   label,
   children,
   hint,
 }: {
+  id: string;
   label: string;
   children: React.ReactNode;
   hint?: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className={LABEL}>{label}</label>
+      <label htmlFor={id} className={LABEL}>
+        {label}
+      </label>
       {children}
       {hint && <span className="text-xs text-gray-500">{hint}</span>}
     </div>
@@ -145,8 +150,9 @@ export function AgentConfigPanel({
       <div className={CARD}>
         <span className={CAPTION}>Identidad del agente</span>
 
-        <Field label="Nombre del agente">
+        <Field id="agentName" label="Nombre del agente">
           <input
+            id="agentName"
             name="agentName"
             required
             defaultValue={initialConfig?.agentName ?? `Asistente de ${businessName}`}
@@ -154,8 +160,9 @@ export function AgentConfigPanel({
           />
         </Field>
 
-        <Field label="Tono de voz">
+        <Field id="tone" label="Tono de voz">
           <select
+            id="tone"
             name="tone"
             defaultValue={initialConfig?.tone ?? TONE_OPTIONS[0].value}
             className={INPUT}
@@ -168,8 +175,9 @@ export function AgentConfigPanel({
           </select>
         </Field>
 
-        <Field label="Mensaje de bienvenida">
+        <Field id="welcomeMessage" label="Mensaje de bienvenida">
           <textarea
+            id="welcomeMessage"
             name="welcomeMessage"
             required
             defaultValue={
@@ -185,8 +193,9 @@ export function AgentConfigPanel({
       <div className={CARD}>
         <span className={CAPTION}>Base de conocimiento del negocio</span>
 
-        <Field label="Horario de atención">
+        <Field id="businessHours" label="Horario de atención">
           <input
+            id="businessHours"
             name="businessHours"
             required
             defaultValue={initialConfig?.businessHours ?? "Lun-Sáb, 9:00-19:00"}
@@ -194,8 +203,9 @@ export function AgentConfigPanel({
           />
         </Field>
 
-        <Field label="Productos, precios y promociones vigentes">
+        <Field id="knowledgeBase" label="Productos, precios y promociones vigentes">
           <textarea
+            id="knowledgeBase"
             name="knowledgeBase"
             defaultValue={initialConfig?.knowledgeBase ?? ""}
             rows={4}
@@ -204,8 +214,9 @@ export function AgentConfigPanel({
           />
         </Field>
 
-        <Field label="Preguntas frecuentes">
+        <Field id="faqs" label="Preguntas frecuentes">
           <textarea
+            id="faqs"
             name="faqs"
             defaultValue={initialConfig?.faqs ?? ""}
             rows={4}
@@ -227,8 +238,9 @@ export function AgentConfigPanel({
         />
 
         {autoReplyOutsideHours && (
-          <Field label="Mensaje fuera de horario">
+          <Field id="outsideHoursMessage" label="Mensaje fuera de horario">
             <textarea
+              id="outsideHoursMessage"
               name="outsideHoursMessage"
               defaultValue={
                 initialConfig?.outsideHoursMessage ??
@@ -241,10 +253,12 @@ export function AgentConfigPanel({
         )}
 
         <Field
+          id="escalationKeywords"
           label="Palabras clave que transfieren a un humano"
           hint="Separadas por coma. Si el cliente escribe alguna de estas palabras, el agente deja de responder y avisa al equipo."
         >
           <input
+            id="escalationKeywords"
             name="escalationKeywords"
             defaultValue={
               initialConfig?.escalationKeywords ??
@@ -254,8 +268,9 @@ export function AgentConfigPanel({
           />
         </Field>
 
-        <Field label="Mensajes automáticos antes de transferir a un humano">
+        <Field id="maxAutoMessages" label="Mensajes automáticos antes de transferir a un humano">
           <input
+            id="maxAutoMessages"
             type="number"
             name="maxAutoMessages"
             min={1}
@@ -267,8 +282,9 @@ export function AgentConfigPanel({
 
       <div className={CARD}>
         <span className={CAPTION}>Objetivo de la conversación</span>
-        <Field label="¿Qué debe lograr el agente en cada conversación?">
+        <Field id="conversationGoal" label="¿Qué debe lograr el agente en cada conversación?">
           <select
+            id="conversationGoal"
             name="conversationGoal"
             defaultValue={initialConfig?.conversationGoal ?? GOAL_OPTIONS[0].value}
             className={INPUT}
@@ -283,12 +299,9 @@ export function AgentConfigPanel({
       </div>
 
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">
-        <button
-          type="submit"
-          className="w-fit rounded-full bg-md-teal px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-md-teal/90"
-        >
+        <SubmitButton className="w-fit rounded-full bg-md-teal px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-md-teal/90">
           Guardar cambios
-        </button>
+        </SubmitButton>
       </div>
     </form>
   );

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CLIENT_STATUS_META } from "@/app/dashboard/status";
 import { EditToggle } from "@/components/admin/EditToggle";
 import { SelectAndSubmit } from "@/components/admin/SelectAndSubmit";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { clients, plans } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { requireStaffOrRedirect } from "@/lib/staff";
@@ -110,12 +111,9 @@ export default async function AdminClientsPage({
             className="rounded border border-gray-300 px-3 py-2 text-sm"
           />
         </div>
-        <button
-          type="submit"
-          className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90"
-        >
+        <SubmitButton className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90">
           Crear perfil
-        </button>
+        </SubmitButton>
       </form>
 
       <div className="flex flex-col gap-4">

@@ -17,12 +17,14 @@ const TABS = [
 ] as const;
 
 export function DashboardTabs({
+  clientId,
   latestActivity = {},
 }: {
+  clientId: string;
   latestActivity?: ActivityTimestamps;
 }) {
   const pathname = usePathname();
-  const { unread, markSeen } = useUnreadSections(latestActivity);
+  const { unread, markSeen } = useUnreadSections(clientId, latestActivity);
 
   return (
     <nav className="flex items-center gap-5 overflow-x-auto">

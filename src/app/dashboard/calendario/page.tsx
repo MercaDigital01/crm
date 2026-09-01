@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { CalendarioView } from "@/components/dashboard/CalendarioView";
 import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { isStaffUser } from "@/lib/staff";
 import { getContentItems, getContentRequests, getViewedClient } from "../data";
 import { createContentRequest } from "./actions";
@@ -89,12 +90,9 @@ export default async function CalendarioPage() {
               className="rounded border border-gray-300 px-3 py-2 text-sm"
             />
           </div>
-          <button
-            type="submit"
-            className="w-fit shrink-0 rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90"
-          >
+          <SubmitButton className="w-fit shrink-0 rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90">
             Enviar
-          </button>
+          </SubmitButton>
         </form>
 
         {requests.length > 0 && (
