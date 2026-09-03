@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useClientToday } from "@/hooks/useClientToday";
 
 const STATUS_COPY = {
   borrador: "Borrador",
@@ -59,13 +60,18 @@ export function ContentMonthCalendar({
 }: {
   items: CalendarContentItem[];
 }) {
-  const today = useMemo(() => new Date(), []);
-  const [cursor, setCursor] = useState(
-    () => new Date(today.getFullYear(), today.getMonth(), 1)
-  );
+  // "Today" depends on the client's clock, which can legitimately differ by
+  // a moment between the server render and client hydration — useClientToday
+  // resolves it after mount instead of during the render Next.js sends to
+  // the server, so both agree on the first paint (nothing highlighted, grid
+  // appears a beat after mount). The displayed month defaults to today's
+  // once known; `manualCursor` only tracks an explicit prev/next click.
+  const today = useClientToday();
+  const [manualCursor, setManualCursor] = useState<Date | null>(null);
+  const cursor = manualCursor ?? today;
 
   const weeks = useMemo(
-    () => buildMonthMatrix(cursor.getFullYear(), cursor.getMonth()),
+    () => (cursor ? buildMonthMatrix(cursor.getFullYear(), cursor.getMonth()) : []),
     [cursor]
   );
 
@@ -81,10 +87,9 @@ export function ContentMonthCalendar({
     return map;
   }, [items]);
 
-  const monthLabel = cursor.toLocaleDateString("es-MX", {
-    month: "long",
-    year: "numeric",
-  });
+  const monthLabel = cursor
+    ? cursor.toLocaleDateString("es-MX", { month: "long", year: "numeric" })
+    : "";
 
   return (
     <div className="flex flex-col gap-4">
@@ -95,21 +100,23 @@ export function ContentMonthCalendar({
         <div className="flex items-center gap-1">
           <button
             type="button"
+            disabled={!cursor}
             onClick={() =>
-              setCursor((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1))
+              cursor && setManualCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))
             }
             aria-label="Mes anterior"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"
           >
             <ChevronLeft size={16} strokeWidth={2} />
           </button>
           <button
             type="button"
+            disabled={!cursor}
             onClick={() =>
-              setCursor((c) => new Date(c.getFullYear(), c.getMonth() + 1, 1))
+              cursor && setManualCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))
             }
             aria-label="Mes siguiente"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"
           >
             <ChevronRight size={16} strokeWidth={2} />
           </button>
@@ -138,7 +145,7 @@ export function ContentMonthCalendar({
             }
             const key = `${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
             const dayItems = itemsByDay.get(key) ?? [];
-            const isToday = sameDay(day, today);
+            const isToday = today ? sameDay(day, today) : false;
 
             return (
               <div
