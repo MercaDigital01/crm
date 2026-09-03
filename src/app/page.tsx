@@ -277,35 +277,57 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-white/10 px-6 py-10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-sm font-semibold text-md-admin-cream">Merca Digital</span>
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-sm font-semibold text-md-admin-cream">Merca Digital</span>
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+              <Link
+                href="/#servicios"
+                className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70 transition-colors hover:text-white"
+              >
+                Servicios
+              </Link>
+              <Link
+                href="/#proceso"
+                className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70 transition-colors hover:text-white"
+              >
+                Cómo funciona
+              </Link>
+              <a
+                href={WHATSAPP_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70 transition-colors hover:text-white"
+              >
+                618 111 2580
+              </a>
+              <a
+                href="mailto:mercadigital.durango@gmail.com"
+                className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70 transition-colors hover:text-white"
+              >
+                mercadigital.durango@gmail.com
+              </a>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-6">
             <Link
-              href="/#servicios"
-              className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70 transition-colors hover:text-white"
+              href="/privacidad"
+              className="text-xs text-md-admin-rose-muted/60 transition-colors hover:text-white"
             >
-              Servicios
+              Aviso de Privacidad
             </Link>
             <Link
-              href="/#proceso"
-              className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70 transition-colors hover:text-white"
+              href="/terminos"
+              className="text-xs text-md-admin-rose-muted/60 transition-colors hover:text-white"
             >
-              Cómo funciona
+              Términos de Servicio
             </Link>
-            <a
-              href={WHATSAPP_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70 transition-colors hover:text-white"
+            <Link
+              href="/eliminar-datos"
+              className="text-xs text-md-admin-rose-muted/60 transition-colors hover:text-white"
             >
-              618 111 2580
-            </a>
-            <a
-              href="mailto:mercadigital.durango@gmail.com"
-              className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70 transition-colors hover:text-white"
-            >
-              mercadigital.durango@gmail.com
-            </a>
+              Eliminar mis datos
+            </Link>
           </div>
         </div>
       </footer>

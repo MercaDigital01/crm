@@ -1,0 +1,8 @@
+# Sitemap URL below points at the temporary Vercel domain — update it once
+# the project has its own production domain.
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+
+Sitemap: https://crm-git-dev-merca-digital.vercel.app/sitemap.xml

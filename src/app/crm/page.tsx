@@ -120,14 +120,36 @@ export default function CrmPage() {
       </section>
 
       <footer className="border-t border-white/10 px-6 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 text-md-admin-rose-muted/70 sm:flex-row sm:items-center">
-          <span className="text-sm font-semibold text-md-admin-cream">Merca Digital</span>
-          <Link
-            href="/"
-            className="text-xs font-medium uppercase tracking-wide transition-colors hover:text-white"
-          >
-            Volver al inicio
-          </Link>
+        <div className="mx-auto flex max-w-6xl flex-col gap-4">
+          <div className="flex flex-col items-start justify-between gap-4 text-md-admin-rose-muted/70 sm:flex-row sm:items-center">
+            <span className="text-sm font-semibold text-md-admin-cream">Merca Digital</span>
+            <Link
+              href="/"
+              className="text-xs font-medium uppercase tracking-wide transition-colors hover:text-white"
+            >
+              Volver al inicio
+            </Link>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-4">
+            <Link
+              href="/privacidad"
+              className="text-xs text-md-admin-rose-muted/60 transition-colors hover:text-white"
+            >
+              Aviso de Privacidad
+            </Link>
+            <Link
+              href="/terminos"
+              className="text-xs text-md-admin-rose-muted/60 transition-colors hover:text-white"
+            >
+              Términos de Servicio
+            </Link>
+            <Link
+              href="/eliminar-datos"
+              className="text-xs text-md-admin-rose-muted/60 transition-colors hover:text-white"
+            >
+              Eliminar mis datos
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
