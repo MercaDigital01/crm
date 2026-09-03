@@ -95,7 +95,7 @@ export default async function AdminLayout({
                 type="search"
                 name="q"
                 placeholder="Buscar"
-                className="w-full bg-transparent placeholder:text-white/50 focus:outline-none"
+                className="w-full border-0 bg-transparent p-0 placeholder:text-white/50 focus:outline-none"
               />
             </label>
           </form>
