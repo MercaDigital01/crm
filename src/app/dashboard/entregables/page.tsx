@@ -6,8 +6,6 @@ import { NoClientProfile } from "@/components/dashboard/NoClientProfile";
 import { isStaffUser } from "@/lib/staff";
 import { getDeliverables, getViewedClient } from "../data";
 
-const CARD_SHADOW = "shadow-[0_2px_10px_rgba(0,0,0,0.02)]";
-
 export default async function EntregablesPage() {
   const { userId } = await auth();
   if (!userId && !(await isStaffUser())) {
@@ -24,14 +22,14 @@ export default async function EntregablesPage() {
   return (
     <div className="flex flex-col gap-10">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Entregables.</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="admin-h1">Entregables.</h1>
+        <p className="admin-subtle mt-1 text-sm">
           Logos, fotos, diseños y videos que te compartimos.
         </p>
       </div>
 
       {files.length === 0 ? (
-        <p className="max-w-xl text-base leading-relaxed text-gray-500">
+        <p className="max-w-xl text-base leading-relaxed text-md-admin-rose-muted">
           Todavía no hay entregables compartidos contigo.
         </p>
       ) : (
@@ -44,9 +42,9 @@ export default async function EntregablesPage() {
                 href={file.fileUrl}
                 target="_blank"
                 rel="noreferrer"
-                className={`group flex flex-col gap-3 rounded-2xl bg-white p-4 transition-shadow hover:shadow-md ${CARD_SHADOW}`}
+                className="admin-card group flex flex-col gap-3 p-4 transition-colors hover:bg-white/[0.09]"
               >
-                <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-gray-50">
+                <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-black/20">
                   {isImage ? (
                     <Image
                       src={file.fileUrl}
@@ -56,17 +54,17 @@ export default async function EntregablesPage() {
                       className="object-cover"
                     />
                   ) : (
-                    <FileText size={28} strokeWidth={1.5} className="text-gray-300" />
+                    <FileText size={28} strokeWidth={1.5} className="text-white/25" />
                   )}
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <p className="truncate text-sm font-medium text-gray-900">
+                  <p className="truncate text-sm font-medium text-white">
                     {file.title}
                   </p>
                   <Download
                     size={16}
                     strokeWidth={2}
-                    className="shrink-0 text-gray-400 transition-colors group-hover:text-md-teal"
+                    className="shrink-0 text-white/40 transition-colors group-hover:text-md-admin-gold"
                   />
                 </div>
               </a>

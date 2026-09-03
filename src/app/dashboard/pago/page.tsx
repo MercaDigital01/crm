@@ -6,13 +6,11 @@ import { getPayments, getViewedClient } from "../data";
 import { CLIENT_STATUS_META } from "../status";
 
 const STATUS_PILL = {
-  teal: "bg-md-teal/10 text-md-teal",
-  gold: "bg-md-gold/10 text-[#a5790a]",
-  blue: "bg-md-blue/10 text-md-blue",
-  red: "bg-md-red/10 text-md-red",
+  teal: "bg-md-teal/20 text-md-teal",
+  gold: "bg-md-admin-gold/20 text-md-admin-gold",
+  blue: "bg-blue-400/20 text-blue-300",
+  red: "bg-md-admin-coral/20 text-md-admin-coral",
 } as const;
-
-const CARD_SHADOW = "shadow-[0_2px_10px_rgba(0,0,0,0.02)]";
 
 export default async function PagoPage() {
   const { userId } = await auth();
@@ -30,12 +28,10 @@ export default async function PagoPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <h1 className="text-2xl font-semibold text-gray-900">
-        Configuración de pago.
-      </h1>
+      <h1 className="admin-h1">Configuración de pago.</h1>
 
-      <div className={`flex flex-col gap-3 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`}>
-        <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+      <div className="admin-card flex flex-col gap-3 md:p-8">
+        <span className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
           Estado de tu cuenta
         </span>
         <span
@@ -45,44 +41,44 @@ export default async function PagoPage() {
         </span>
       </div>
 
-      <div className={`flex flex-col gap-3 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`}>
-        <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+      <div className="admin-card flex flex-col gap-3 md:p-8">
+        <span className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
           Tarjeta registrada
         </span>
-        <p className="max-w-md text-sm leading-relaxed text-gray-500">
+        <p className="max-w-md text-sm leading-relaxed text-md-admin-rose-muted">
           El cobro automático recurrente todavía no está activado — llega en
           la siguiente fase del proyecto. Por ahora, cualquier ajuste a tu
           método de pago se coordina directo con nosotros por WhatsApp.
         </p>
       </div>
 
-      <div className={`flex flex-col gap-3 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`}>
-        <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+      <div className="admin-card flex flex-col gap-3 md:p-8">
+        <span className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
           Historial de pagos
         </span>
         {payments.length === 0 ? (
-          <p className="max-w-md text-sm leading-relaxed text-gray-500">
+          <p className="max-w-md text-sm leading-relaxed text-md-admin-rose-muted">
             Todavía no hay pagos registrados en tu cuenta.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-gray-100">
+          <div className="flex flex-col divide-y divide-white/10">
             {payments.map((payment) => (
               <div
                 key={payment.id}
                 className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex flex-col gap-0.5">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-white">
                     {(payment.amountMxnCents / 100).toLocaleString("es-MX", {
                       style: "currency",
                       currency: "MXN",
                     })}
                   </p>
                   {payment.note && (
-                    <p className="text-xs text-gray-500">{payment.note}</p>
+                    <p className="text-xs text-md-admin-rose-muted">{payment.note}</p>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-gray-400">
+                <div className="flex items-center gap-2 text-xs text-md-admin-rose-muted/70">
                   {payment.method && <span>{payment.method}</span>}
                   <span>
                     {new Date(payment.paidAt).toLocaleDateString("es-MX", {

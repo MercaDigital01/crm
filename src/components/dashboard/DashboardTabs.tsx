@@ -42,13 +42,13 @@ export function DashboardTabs({
             onClick={() => markSeen(tab.href)}
             className={`flex items-center gap-1.5 whitespace-nowrap border-b-2 py-1 text-sm font-medium transition-colors ${
               active
-                ? "border-md-teal text-gray-900"
-                : "border-transparent text-gray-500 hover:text-gray-900"
+                ? "border-md-admin-coral text-white"
+                : "border-transparent text-white/50 hover:text-white/80"
             }`}
           >
             {tab.label}
             {isUnread && (
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-md-teal" />
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-md-admin-gold" />
             )}
           </Link>
         );

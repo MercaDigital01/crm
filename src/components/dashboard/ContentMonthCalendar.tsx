@@ -94,7 +94,7 @@ export function ContentMonthCalendar({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold capitalize text-gray-900">
+        <p className="text-sm font-semibold capitalize text-md-admin-cream">
           {monthLabel}
         </p>
         <div className="flex items-center gap-1">
@@ -105,7 +105,7 @@ export function ContentMonthCalendar({
               cursor && setManualCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))
             }
             aria-label="Mes anterior"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-40"
           >
             <ChevronLeft size={16} strokeWidth={2} />
           </button>
@@ -116,7 +116,7 @@ export function ContentMonthCalendar({
               cursor && setManualCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))
             }
             aria-label="Mes siguiente"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-40"
           >
             <ChevronRight size={16} strokeWidth={2} />
           </button>
@@ -127,7 +127,7 @@ export function ContentMonthCalendar({
         {WEEKDAY_LABEL.map((label, i) => (
           <div
             key={i}
-            className="pb-1 text-center text-[10px] font-medium uppercase tracking-wide text-gray-400"
+            className="pb-1 text-center text-[10px] font-medium uppercase tracking-wide text-md-admin-rose-muted/70"
           >
             {label}
           </div>
@@ -139,7 +139,7 @@ export function ContentMonthCalendar({
               return (
                 <div
                   key={`${weekIndex}-${dayIndex}`}
-                  className="min-h-[5.5rem] rounded-lg bg-gray-50/50"
+                  className="min-h-[5.5rem] rounded-lg bg-white/[0.02]"
                 />
               );
             }
@@ -152,13 +152,13 @@ export function ContentMonthCalendar({
                 key={`${weekIndex}-${dayIndex}`}
                 className={`flex min-h-[5.5rem] flex-col gap-1 rounded-lg border p-1.5 ${
                   isToday
-                    ? "border-md-teal/40 bg-md-teal/5"
-                    : "border-gray-100 bg-white"
+                    ? "border-md-admin-gold/40 bg-md-admin-gold/10"
+                    : "border-white/10 bg-white/[0.04]"
                 }`}
               >
                 <span
                   className={`text-[11px] font-medium ${
-                    isToday ? "text-md-teal" : "text-gray-400"
+                    isToday ? "text-md-admin-gold" : "text-md-admin-rose-muted/70"
                   }`}
                 >
                   {day.getDate()}
@@ -168,7 +168,7 @@ export function ContentMonthCalendar({
                     <span
                       key={item.id}
                       title={`${item.title} · ${FORMAT_COPY[item.format]} · ${STATUS_COPY[item.status]}`}
-                      className="flex items-center gap-1 truncate rounded bg-md-teal/10 px-1.5 py-0.5 text-[10px] font-medium text-md-teal"
+                      className="flex items-center gap-1 truncate rounded bg-md-admin-gold/15 px-1.5 py-0.5 text-[10px] font-medium text-md-admin-gold"
                     >
                       {item.thumbnailUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -182,7 +182,7 @@ export function ContentMonthCalendar({
                     </span>
                   ))}
                   {dayItems.length > 2 && (
-                    <span className="text-[10px] font-medium text-gray-400">
+                    <span className="text-[10px] font-medium text-md-admin-rose-muted/70">
                       +{dayItems.length - 2} más
                     </span>
                   )}

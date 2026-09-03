@@ -49,11 +49,11 @@ function formatDelta(current: number, previous: number) {
 function DeltaLabel({ current, previous }: { current: number; previous: number }) {
   const delta = formatDelta(current, previous);
   if (!delta) {
-    return <span className="text-[11px] text-gray-400">Sin comparación</span>;
+    return <span className="text-[11px] text-md-admin-rose-muted/70">Sin comparación</span>;
   }
   const Icon = delta.isUp ? ArrowUp : ArrowDown;
   return (
-    <span className="flex items-center gap-0.5 text-[11px] font-medium text-gray-500">
+    <span className="flex items-center gap-0.5 text-[11px] font-medium text-md-admin-rose-muted">
       <Icon size={11} strokeWidth={2.5} />
       {delta.pct === null
         ? "Nuevo este periodo"
@@ -97,12 +97,12 @@ export function CampaignStatsPanel({ stats }: { stats: CampaignStatPoint[] }) {
   const maxBucket = Math.max(1, ...chartBuckets);
 
   return (
-    <div className="flex flex-col gap-4 border-t border-gray-100 pt-4">
+    <div className="flex flex-col gap-4 border-t border-white/10 pt-4">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+        <span className="text-[10px] font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
           Tendencia
         </span>
-        <div className="flex gap-1 rounded-full bg-gray-100 p-0.5">
+        <div className="flex gap-1 rounded-full bg-white/10 p-0.5">
           {RANGE_OPTIONS.map((option) => (
             <button
               key={option}
@@ -110,8 +110,8 @@ export function CampaignStatsPanel({ stats }: { stats: CampaignStatPoint[] }) {
               onClick={() => setRange(option)}
               className={`rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors ${
                 range === option
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-900"
+                  ? "bg-md-admin-coral text-white shadow-sm"
+                  : "text-white/60 hover:text-white"
               }`}
             >
               {option}d
@@ -122,28 +122,28 @@ export function CampaignStatsPanel({ stats }: { stats: CampaignStatPoint[] }) {
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+          <span className="text-[10px] font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
             Impresiones
           </span>
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-semibold text-white">
             {current.impressions.toLocaleString("es-MX")}
           </span>
           <DeltaLabel current={current.impressions} previous={previous.impressions} />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+          <span className="text-[10px] font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
             Clics
           </span>
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-semibold text-white">
             {current.clicks.toLocaleString("es-MX")}
           </span>
           <DeltaLabel current={current.clicks} previous={previous.clicks} />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+          <span className="text-[10px] font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
             Gasto
           </span>
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-semibold text-white">
             {(current.spendMxnCents / 100).toLocaleString("es-MX", {
               style: "currency",
               currency: "MXN",
@@ -152,10 +152,10 @@ export function CampaignStatsPanel({ stats }: { stats: CampaignStatPoint[] }) {
           <DeltaLabel current={current.spendMxnCents} previous={previous.spendMxnCents} />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+          <span className="text-[10px] font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
             CTR
           </span>
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-semibold text-white">
             {currentCtr.toFixed(2)}%
           </span>
           <DeltaLabel current={currentCtr} previous={previousCtr} />
@@ -167,7 +167,7 @@ export function CampaignStatsPanel({ stats }: { stats: CampaignStatPoint[] }) {
           <div
             key={i}
             title={(value / 100).toLocaleString("es-MX", { style: "currency", currency: "MXN" })}
-            className={`w-full rounded-t ${value === 0 ? "bg-gray-100" : "bg-md-teal/70"}`}
+            className={`w-full rounded-t ${value === 0 ? "bg-white/10" : "bg-md-admin-gold/70"}`}
             style={{ height: `${value === 0 ? 6 : Math.max(10, (value / maxBucket) * 100)}%` }}
           />
         ))}

@@ -65,20 +65,16 @@ export function ClientSidebar({
             href={href}
             aria-current={isActive ? "page" : undefined}
             onClick={() => markSeen(href)}
-            className={`flex items-center gap-3 rounded-xl border-l-4 py-2.5 pl-3 pr-3 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-3 rounded-full py-2.5 pl-3 pr-3 text-sm font-medium transition-colors ${
               isActive
-                ? "border-md-teal bg-md-teal/10 text-gray-900"
-                : "border-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                ? "bg-md-admin-coral text-white shadow-sm"
+                : "text-white/70 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <Icon
-              size={18}
-              strokeWidth={2}
-              className={`shrink-0 ${isActive ? "text-md-teal" : ""}`}
-            />
+            <Icon size={18} strokeWidth={2} className="shrink-0" />
             <span className={isActive ? "font-semibold" : ""}>{label}</span>
             {isUnread && (
-              <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-md-teal" />
+              <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-md-admin-gold" />
             )}
           </Link>
         );

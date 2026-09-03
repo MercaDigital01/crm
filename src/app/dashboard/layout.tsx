@@ -12,9 +12,9 @@ import { CLIENT_STATUS_META } from "./status";
 
 const STATUS_DOT = {
   teal: "bg-md-teal",
-  gold: "bg-md-gold",
-  blue: "bg-md-blue",
-  red: "bg-md-red",
+  gold: "bg-md-admin-gold",
+  blue: "bg-blue-400",
+  red: "bg-md-admin-coral",
 } as const;
 
 export default async function DashboardLayout({
@@ -36,15 +36,18 @@ export default async function DashboardLayout({
     : {};
 
   return (
-    <div className="flex min-h-screen flex-1 bg-gray-50 text-gray-900">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-gray-200 bg-white md:flex print:hidden">
-        <Link href="/" className="flex items-center gap-2 px-5 py-5">
+    <div className="admin-panel flex min-h-screen flex-1 bg-md-admin-bg font-admin-sans text-white">
+      <aside className="hidden w-64 shrink-0 flex-col md:flex print:hidden">
+        <Link
+          href="/"
+          className="mx-4 mt-4 flex items-center gap-2 rounded-2xl bg-md-admin-cream px-3 py-2.5"
+        >
           <Image
             src="/brand/logo-merca-digital.png"
             alt="Merca Digital"
             width={140}
             height={34}
-            className="h-7 w-auto"
+            className="h-6 w-auto"
             priority
           />
         </Link>
@@ -52,14 +55,14 @@ export default async function DashboardLayout({
         <ClientSidebar clientId={ownClient?.id ?? ""} latestActivity={latestActivity} />
 
         <div className="mt-auto p-3">
-          <div className="flex items-center justify-between gap-2 rounded-2xl bg-gray-100 p-3">
+          <div className="flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/25 p-3 backdrop-blur-md">
             <div className="min-w-0">
               {ownClient && statusMeta && (
                 <div className="flex items-center gap-2">
                   <span
                     className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[statusMeta.color]}`}
                   />
-                  <span className="truncate text-xs font-medium text-gray-600">
+                  <span className="truncate text-xs font-medium text-md-admin-rose-muted">
                     {statusMeta.shortLabel}
                   </span>
                 </div>
@@ -72,7 +75,7 @@ export default async function DashboardLayout({
 
       <div className="flex min-w-0 flex-1 flex-col">
         {isSupportView && ownClient && (
-          <div className="flex flex-col items-center justify-center gap-2 bg-md-gold/15 px-6 py-2.5 text-gray-900 sm:flex-row sm:gap-4 print:hidden">
+          <div className="flex flex-col items-center justify-center gap-2 bg-md-admin-gold/20 px-6 py-2.5 text-md-admin-cream sm:flex-row sm:gap-4 print:hidden">
             <p className="text-xs font-medium uppercase tracking-wide">
               Vista de soporte · viendo la cuenta de{" "}
               <span className="font-semibold">{ownClient.businessName}</span>
@@ -80,7 +83,7 @@ export default async function DashboardLayout({
             <form action={exitSupportView}>
               <button
                 type="submit"
-                className="rounded-full bg-gray-900 px-4 py-1 text-[10px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-gray-700"
+                className="rounded-full bg-md-admin-card-deep px-4 py-1 text-[10px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-md-admin-card-deep/80"
               >
                 Salir
               </button>
@@ -88,7 +91,7 @@ export default async function DashboardLayout({
           </div>
         )}
 
-        <header className="flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3 md:hidden print:hidden">
+        <header className="flex items-center justify-between gap-4 border-b border-white/10 bg-md-admin-bg px-4 py-3 md:hidden print:hidden">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/brand/logo-merca-digital.png"
@@ -100,7 +103,7 @@ export default async function DashboardLayout({
           </Link>
           <UserButton />
         </header>
-        <div className="border-b border-gray-200 bg-white px-3 py-2 md:hidden print:hidden">
+        <div className="border-b border-white/10 bg-md-admin-bg px-3 py-2 md:hidden print:hidden">
           <DashboardTabs clientId={ownClient?.id ?? ""} latestActivity={latestActivity} />
         </div>
 

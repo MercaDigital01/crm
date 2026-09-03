@@ -6,11 +6,10 @@ import { useState } from "react";
 import type { agentConfigs } from "@/db/schema";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 
-const CARD_SHADOW = "shadow-[0_2px_10px_rgba(0,0,0,0.02)]";
-const CARD = `flex flex-col gap-5 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`;
-const LABEL = "text-xs font-medium text-gray-600";
-const CAPTION = "text-xs font-medium uppercase tracking-wide text-gray-400";
-const INPUT = "rounded border border-gray-300 px-3 py-2 text-sm text-gray-900";
+const CARD = "admin-card flex flex-col gap-5 md:p-8";
+const LABEL = "text-xs font-medium text-white/60";
+const CAPTION = "text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70";
+const INPUT = "text-sm";
 
 const TONE_OPTIONS = [
   { value: "cercano_amigable", label: "Cercano y amigable" },
@@ -42,7 +41,7 @@ function Field({
         {label}
       </label>
       {children}
-      {hint && <span className="text-xs text-gray-500">{hint}</span>}
+      {hint && <span className="text-xs text-md-admin-rose-muted">{hint}</span>}
     </div>
   );
 }
@@ -63,8 +62,8 @@ function Toggle({
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium text-gray-900">{label}</span>
-        {hint && <span className="text-xs text-gray-500">{hint}</span>}
+        <span className="text-sm font-medium text-white">{label}</span>
+        {hint && <span className="text-xs text-md-admin-rose-muted">{hint}</span>}
       </div>
       <label className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center">
         <input
@@ -74,7 +73,7 @@ function Toggle({
           onChange={(e) => onChange(e.target.checked)}
           className="peer sr-only"
         />
-        <span className="h-6 w-11 rounded-full bg-gray-300 transition-colors peer-checked:bg-md-teal" />
+        <span className="h-6 w-11 rounded-full bg-white/15 transition-colors peer-checked:bg-md-admin-gold" />
         <span className="absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform peer-checked:translate-x-5" />
       </label>
     </div>
@@ -101,16 +100,16 @@ export function AgentConfigPanel({
       <div className="flex flex-col gap-2">
         <Link
           href="/dashboard/conversaciones"
-          className="flex w-fit items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
+          className="flex w-fit items-center gap-1.5 text-sm font-medium text-white/50 transition-colors hover:text-white"
         >
           <ArrowLeft size={16} strokeWidth={2} />
           Conversaciones
         </Link>
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h1 className="admin-h1">
             Agente de IA para WhatsApp.
           </h1>
-          <p className="max-w-xl text-sm leading-relaxed text-gray-500">
+          <p className="max-w-xl text-sm leading-relaxed text-md-admin-rose-muted">
             Configura cómo responde el agente a tus clientes por WhatsApp.
             {initialConfig
               ? ` Última actualización: ${new Date(
@@ -130,17 +129,17 @@ export function AgentConfigPanel({
         <span className={CAPTION}>Conexión</span>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <span className="w-fit rounded-full bg-md-gold/10 px-3 py-1 text-xs font-medium text-[#a5790a]">
+            <span className="w-fit rounded-full bg-md-admin-gold/20 px-3 py-1 text-xs font-medium text-md-admin-gold">
               No conectado
             </span>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-md-admin-rose-muted">
               Ningún número de WhatsApp Business está vinculado todavía.
             </span>
           </div>
           <button
             type="button"
             disabled
-            className="w-fit cursor-not-allowed rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-400"
+            className="w-fit cursor-not-allowed rounded-full border border-white/15 px-4 py-2 text-sm text-white/40"
           >
             Conectar WhatsApp Business
           </button>
@@ -299,7 +298,7 @@ export function AgentConfigPanel({
       </div>
 
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">
-        <SubmitButton className="w-fit rounded-full bg-md-teal px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-md-teal/90">
+        <SubmitButton className="w-fit rounded-full bg-md-admin-gold px-5 py-2.5 text-sm font-medium text-md-admin-card-deep transition-colors hover:bg-md-admin-gold/90">
           Guardar cambios
         </SubmitButton>
       </div>

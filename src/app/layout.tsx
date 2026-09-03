@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 import {
   Geist,
   Geist_Mono,
@@ -49,36 +50,33 @@ export const metadata: Metadata = {
     "Mercadotecnia digital para negocios locales, con un agente de IA que vende y agenda por WhatsApp y un panel donde ves todo en tiempo real.",
 };
 
+// Dark maroon/gold Admin v2 palette, reused here so Clerk's own SignIn/SignUp/
+// UserButton widgets match the rest of the product instead of rendering their
+// light default card. See DESIGN.md for the full system this is drawn from.
+const clerkAppearance = {
+  baseTheme: dark,
+  variables: {
+    colorPrimary: "#f0c14b",
+    colorPrimaryForeground: "#3d1119",
+    colorBackground: "#6b2a35",
+    colorForeground: "#ffffff",
+    colorMutedForeground: "#d9a9ac",
+    colorInput: "rgba(255,255,255,0.08)",
+    colorInputForeground: "#ffffff",
+    colorNeutral: "#ffffff",
+    colorRing: "#f0c14b",
+    borderRadius: "1rem",
+  },
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <ClerkProvider>
+    <ClerkProvider appearance={clerkAppearance}>
       <html
         lang="es"
         className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${spaceMono.variable} ${admin_sans.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col">
-          {/*
-            THESIS: A confident, transparent agency proven by a real working
-            product, not an industrial-panel costume or generic AI-agency
-            chrome (icon-tile trios, eyebrow kickers, invented metrics).
-            OWN-WORLD: Dark chassis field carried across the whole page;
-            brand teal/gold/blue as committed per-section accents, not
-            scattered; Space Grotesk oversized display; Space Mono reserved
-            for small functional labels, never a heading kicker; real,
-            verified stock photography; the WhatsApp-receipt mockup as the
-            one authored differentiator asset.
-            STORY: Visitor sees the three real services (WhatsApp sales
-            agent, Ads, content) proven by an actual dashboard preview, then
-            contacts the agency or logs in if already a client.
-            FIRST VIEWPORT: Full-bleed real photo of the product's real
-            subject (a WhatsApp conversation), one giant two-line headline,
-            no badge or eyebrow above it, one primary WhatsApp CTA.
-            FORM: Canon path — user-pinned via named competitor references
-            (Novacraft/Zenrixa/Arolex/Digitaal), built at their craft level;
-            replaces candidate 3/7 (seed a62cecbd) from the prior run.
-            FINISH: unreviewed and undocumented is unfinished; this build
-            ends with the finish review, the verdict, and DESIGN.md.
-          */}
           {children}
         </body>
       </html>

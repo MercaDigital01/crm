@@ -14,13 +14,11 @@ import {
 } from "./data";
 import { CLIENT_STATUS_META } from "./status";
 
-const CARD_SHADOW = "shadow-[0_2px_10px_rgba(0,0,0,0.02)]";
-
 const STATUS_PILL = {
-  teal: "bg-md-teal/10 text-md-teal",
-  gold: "bg-md-gold/10 text-[#a5790a]",
-  blue: "bg-md-blue/10 text-md-blue",
-  red: "bg-md-red/10 text-md-red",
+  teal: "bg-md-teal/20 text-md-teal",
+  gold: "bg-md-admin-gold/20 text-md-admin-gold",
+  blue: "bg-blue-400/20 text-blue-300",
+  red: "bg-md-admin-coral/20 text-md-admin-coral",
 } as const;
 
 function StatTile({
@@ -33,13 +31,15 @@ function StatTile({
   value: number;
 }) {
   return (
-    <div className={`flex items-center gap-4 rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-md-teal/10 text-md-teal">
+    <div className="admin-card flex items-center gap-4">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-md-admin-coral text-white">
         <Icon size={20} strokeWidth={2} />
       </div>
       <div>
-        <p className="text-2xl font-semibold text-gray-900">{value}</p>
-        <p className="text-xs text-gray-500">{label}</p>
+        <p className="bg-gradient-to-br from-md-admin-cream to-md-admin-gold-deep bg-clip-text font-admin-display text-2xl font-semibold text-transparent">
+          {value}
+        </p>
+        <p className="text-xs text-md-admin-rose-muted">{label}</p>
       </div>
     </div>
   );
@@ -100,15 +100,13 @@ export default async function DashboardResumenPage() {
   return (
     <div className="flex flex-col gap-10">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Resumen de tu plan.
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">{ownClient.businessName}</p>
+        <h1 className="admin-h1">Resumen de tu plan.</h1>
+        <p className="admin-subtle mt-1 text-sm">{ownClient.businessName}</p>
       </div>
 
       {!checklistComplete && (
-        <div className={`flex flex-col gap-3 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`}>
-          <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+        <div className="admin-card flex flex-col gap-3 md:p-8">
+          <span className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
             Primeros pasos
           </span>
           <div className="flex flex-col gap-2">
@@ -123,9 +121,9 @@ export default async function DashboardResumenPage() {
                   <Icon
                     size={16}
                     strokeWidth={2}
-                    className={item.done ? "text-md-teal" : "text-gray-300"}
+                    className={item.done ? "text-md-admin-gold" : "text-white/25"}
                   />
-                  <span className={item.done ? "text-gray-400 line-through" : "text-gray-700"}>
+                  <span className={item.done ? "text-white/40 line-through" : "text-white/80"}>
                     {item.label}
                   </span>
                 </Link>
@@ -154,15 +152,15 @@ export default async function DashboardResumenPage() {
       </div>
 
       {nextContentItem && (
-        <div className={`flex flex-col gap-3 rounded-2xl bg-white p-6 md:p-8 sm:flex-row sm:items-center sm:justify-between ${CARD_SHADOW}`}>
+        <div className="admin-card flex flex-col gap-3 md:p-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+            <span className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
               Próxima publicación
             </span>
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-lg font-semibold text-white">
               {nextContentItem.title}
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-md-admin-rose-muted">
               {new Date(nextContentItem.scheduledDate).toLocaleDateString(
                 "es-MX",
                 { weekday: "long", day: "2-digit", month: "long" }
@@ -172,25 +170,25 @@ export default async function DashboardResumenPage() {
           </div>
           <Link
             href="/dashboard/calendario"
-            className="w-fit shrink-0 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+            className="w-fit shrink-0 rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
           >
             Ver calendario
           </Link>
         </div>
       )}
 
-      <div className={`rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`}>
+      <div className="admin-card md:p-8">
         <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+            <span className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
               Tu plan
             </span>
             {plan ? (
               <>
-                <p className="text-2xl font-semibold text-gray-900">
+                <p className="text-2xl font-semibold text-white">
                   {plan.name}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-md-admin-rose-muted">
                   {(plan.priceMxnCents / 100).toLocaleString("es-MX", {
                     style: "currency",
                     currency: "MXN",
@@ -198,13 +196,13 @@ export default async function DashboardResumenPage() {
                   / mes
                 </p>
                 {plan.description && (
-                  <p className="mt-2 max-w-md text-sm leading-relaxed text-gray-500">
+                  <p className="mt-2 max-w-md text-sm leading-relaxed text-md-admin-rose-muted">
                     {plan.description}
                   </p>
                 )}
               </>
             ) : (
-              <p className="max-w-md text-sm leading-relaxed text-gray-500">
+              <p className="max-w-md text-sm leading-relaxed text-md-admin-rose-muted">
                 Todavía no tienes un plan asignado — te avisamos en cuanto
                 quede listo.
               </p>
@@ -212,7 +210,7 @@ export default async function DashboardResumenPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+            <span className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
               Estado de tu cuenta
             </span>
             <span
