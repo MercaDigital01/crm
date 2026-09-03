@@ -65,15 +65,15 @@ export default async function AdminCalendarioPage({
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Calendario</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="admin-h1">Calendario</h1>
+        <p className="admin-subtle mt-1 text-sm">
           Elige un cliente para programar y revisar su calendario de
           contenido.
         </p>
       </div>
 
-      <div className="rounded-2xl bg-white p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] md:p-6">
-        <h2 className="mb-2 text-sm font-semibold text-gray-900">
+      <div className="admin-card">
+        <h2 className="mb-2 text-sm font-semibold text-md-admin-cream">
           Tablero editorial (todos los clientes)
         </h2>
         <EditorialMonthCalendar items={allItemsAllClients} />
@@ -85,59 +85,38 @@ export default async function AdminCalendarioPage({
         <div className="flex flex-col gap-8">
           <form
             action={createContentItem}
-            className="grid grid-cols-1 gap-3 rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-5 sm:grid-cols-2 lg:grid-cols-6 lg:items-end"
+            className="admin-card grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6 lg:items-end"
           >
             <input type="hidden" name="clientId" value={selectedClient.id} />
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-600">
+              <label className="text-xs font-medium text-white/60">
                 Fecha
               </label>
-              <input
-                type="date"
-                name="scheduledDate"
-                required
-                className="rounded border border-gray-300 px-3 py-2 text-sm"
-              />
+              <input type="date" name="scheduledDate" required />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-600">
+              <label className="text-xs font-medium text-white/60">
                 Red social
               </label>
-              <input
-                name="platform"
-                required
-                placeholder="Instagram, TikTok…"
-                className="rounded border border-gray-300 px-3 py-2 text-sm"
-              />
+              <input name="platform" required placeholder="Instagram, TikTok…" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-600">
+              <label className="text-xs font-medium text-white/60">
                 Pilar (opcional)
               </label>
-              <input
-                name="pillar"
-                className="rounded border border-gray-300 px-3 py-2 text-sm"
-              />
+              <input name="pillar" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-600">
+              <label className="text-xs font-medium text-white/60">
                 Título
               </label>
-              <input
-                name="title"
-                required
-                className="rounded border border-gray-300 px-3 py-2 text-sm"
-              />
+              <input name="title" required />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-600">
+              <label className="text-xs font-medium text-white/60">
                 Formato
               </label>
-              <select
-                name="format"
-                required
-                className="rounded border border-gray-300 px-3 py-2 text-sm"
-              >
+              <select name="format" required>
                 {FORMAT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -146,14 +125,10 @@ export default async function AdminCalendarioPage({
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-600">
+              <label className="text-xs font-medium text-white/60">
                 Estado
               </label>
-              <select
-                name="status"
-                defaultValue="borrador"
-                className="rounded border border-gray-300 px-3 py-2 text-sm"
-              >
+              <select name="status" defaultValue="borrador">
                 {STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -161,14 +136,14 @@ export default async function AdminCalendarioPage({
                 ))}
               </select>
             </div>
-            <SubmitButton className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90 sm:col-span-2 lg:col-span-6 lg:w-fit">
+            <SubmitButton className="rounded-full bg-md-admin-gold px-4 py-2 text-sm font-medium text-md-admin-card-deep transition-colors hover:bg-md-admin-gold/90 sm:col-span-2 lg:col-span-6 lg:w-fit">
               Programar contenido
             </SubmitButton>
           </form>
 
-          <div className="overflow-x-auto rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <div className="admin-card overflow-x-auto p-0">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+              <thead>
                 <tr>
                   <th className="px-4 py-3">Fecha</th>
                   <th className="px-4 py-3">Título</th>
@@ -179,7 +154,7 @@ export default async function AdminCalendarioPage({
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody>
                 {items.map((item) => (
                   <tr key={item.id}>
                     <td colSpan={6} className="px-4 py-3">
@@ -187,26 +162,26 @@ export default async function AdminCalendarioPage({
                         key={JSON.stringify(item)}
                         view={
                           <div className="grid grid-cols-6 gap-2">
-                            <p className="text-gray-600">
+                            <p className="text-md-admin-rose-muted">
                               {new Date(item.scheduledDate).toLocaleDateString(
                                 "es-MX"
                               )}
                             </p>
-                            <p className="font-medium text-gray-900">
+                            <p className="font-medium text-white">
                               {item.title}
                             </p>
-                            <p className="text-gray-600">{item.platform}</p>
-                            <p className="text-gray-600">
+                            <p className="text-md-admin-rose-muted">{item.platform}</p>
+                            <p className="text-md-admin-rose-muted">
                               {item.pillar ?? "—"}
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-md-admin-rose-muted">
                               {
                                 FORMAT_OPTIONS.find(
                                   (o) => o.value === item.format
                                 )?.label
                               }
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-md-admin-rose-muted">
                               {
                                 STATUS_OPTIONS.find(
                                   (o) => o.value === item.status
@@ -226,29 +201,29 @@ export default async function AdminCalendarioPage({
                               name="scheduledDate"
                               defaultValue={item.scheduledDate}
                               required
-                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                              className="text-xs"
                             />
                             <input
                               name="title"
                               defaultValue={item.title}
                               required
-                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                              className="text-xs"
                             />
                             <input
                               name="platform"
                               defaultValue={item.platform}
                               required
-                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                              className="text-xs"
                             />
                             <input
                               name="pillar"
                               defaultValue={item.pillar ?? ""}
-                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                              className="text-xs"
                             />
                             <select
                               name="format"
                               defaultValue={item.format}
-                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                              className="text-xs"
                             >
                               {FORMAT_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>
@@ -260,7 +235,7 @@ export default async function AdminCalendarioPage({
                               <select
                                 name="status"
                                 defaultValue={item.status}
-                                className="w-full rounded border border-gray-300 px-2 py-1 text-xs"
+                                className="w-full text-xs"
                               >
                                 {STATUS_OPTIONS.map((option) => (
                                   <option key={option.value} value={option.value}>
@@ -270,7 +245,7 @@ export default async function AdminCalendarioPage({
                               </select>
                               <button
                                 type="submit"
-                                className="shrink-0 rounded-full bg-md-teal px-3 py-1 text-xs font-medium text-white hover:bg-md-teal/90"
+                                className="shrink-0 rounded-full bg-md-admin-gold px-3 py-1 text-xs font-medium text-md-admin-card-deep hover:bg-md-admin-gold/90"
                               >
                                 Guardar
                               </button>
@@ -289,7 +264,7 @@ export default async function AdminCalendarioPage({
                               name="targetClientId"
                               required
                               defaultValue=""
-                              className="rounded border border-gray-300 px-1.5 py-1 text-xs"
+                              className="text-xs"
                             >
                               <option value="" disabled>
                                 Duplicar a…
@@ -304,7 +279,7 @@ export default async function AdminCalendarioPage({
                             </select>
                             <button
                               type="submit"
-                              className="rounded-full border border-gray-300 px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-100"
+                              className="rounded-full border border-white/20 px-2 py-1 text-xs text-white transition-colors hover:bg-white/10"
                             >
                               Ir
                             </button>
@@ -323,7 +298,7 @@ export default async function AdminCalendarioPage({
                   <tr>
                     <td
                       colSpan={7}
-                      className="px-4 py-6 text-center text-sm text-gray-500"
+                      className="px-4 py-6 text-center text-sm text-md-admin-rose-muted"
                     >
                       {selectedClient.businessName} todavía no tiene
                       contenido programado.

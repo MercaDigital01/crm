@@ -9,7 +9,7 @@ export default function AdminRootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="admin-panel flex flex-1 flex-col text-gray-900">
+    <div className="admin-panel flex flex-1 flex-col font-admin-sans text-white">
       {children}
     </div>
   );

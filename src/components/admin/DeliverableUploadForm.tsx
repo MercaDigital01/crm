@@ -61,29 +61,29 @@ export function DeliverableUploadForm({ clientId }: { clientId: string }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-2 border-t border-gray-100 pt-3 sm:flex-row sm:items-end"
+      className="flex flex-col gap-2 border-t border-white/10 pt-3 sm:flex-row sm:items-end"
     >
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Título del entregable"
         required
-        className="rounded border border-gray-300 px-3 py-2 text-sm"
+        className="rounded border border-white/15 bg-white/[0.07] px-3 py-2 text-sm text-white placeholder:text-white/40"
       />
       <input
         type="file"
         onChange={(e) => setFile(e.target.files?.[0] ?? null)}
         required
-        className="text-sm"
+        className="text-sm text-white/70"
       />
       <button
         type="submit"
         disabled={status === "uploading"}
-        className="w-fit shrink-0 rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-fit shrink-0 rounded-full bg-md-admin-gold px-4 py-2 text-sm font-medium text-md-admin-card-deep transition-colors hover:bg-md-admin-gold/90 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {status === "uploading" ? "Subiendo…" : "Subir entregable"}
       </button>
-      {error && <span className="text-xs text-md-red">{error}</span>}
+      {error && <span className="text-xs text-md-admin-coral">{error}</span>}
     </form>
   );
 }

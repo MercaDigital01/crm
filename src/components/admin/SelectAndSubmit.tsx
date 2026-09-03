@@ -41,7 +41,7 @@ export function SelectAndSubmit({
         name={name}
         defaultValue={defaultValue}
         onChange={() => formRef.current?.requestSubmit()}
-        className="rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900"
+        className="rounded border border-white/15 bg-white/[0.07] px-2 py-1 text-xs text-white"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

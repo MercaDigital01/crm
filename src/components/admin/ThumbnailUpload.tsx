@@ -65,7 +65,7 @@ export function ThumbnailUpload({
         disabled={uploading}
         onClick={() => inputRef.current?.click()}
         title="Subir miniatura"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
       >
         <ImageUp size={14} strokeWidth={2} />
       </button>

@@ -45,6 +45,27 @@ export async function createStaffUser(formData: FormData) {
   revalidatePath("/admin/staff");
 }
 
+export async function updateStaffDisplayName(formData: FormData) {
+  if (!(await isStaffUser())) {
+    throw new Error("No autorizado");
+  }
+
+  const id = String(formData.get("id") ?? "");
+  const displayName = String(formData.get("displayName") ?? "").trim();
+  if (!id) {
+    throw new Error("Falta la cuenta a actualizar");
+  }
+
+  await withAppUser((tx) =>
+    tx
+      .update(staffUsers)
+      .set({ displayName: displayName || null })
+      .where(eq(staffUsers.id, id))
+  );
+
+  revalidatePath("/admin/staff");
+}
+
 export async function deleteStaffUser(formData: FormData) {
   if (!(await isStaffUser())) {
     throw new Error("No autorizado");

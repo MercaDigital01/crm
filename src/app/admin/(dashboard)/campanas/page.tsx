@@ -53,8 +53,8 @@ export default async function AdminCampanasPage({
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Campañas</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="admin-h1">Campañas</h1>
+        <p className="admin-subtle mt-1 text-sm">
           Elige un cliente para ver o registrar sus campañas y estadísticas.
         </p>
       </div>
@@ -65,18 +65,14 @@ export default async function AdminCampanasPage({
         <div className="flex flex-col gap-8">
           <form
             action={createCampaign}
-            className="flex flex-col gap-3 rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-5 sm:flex-row sm:items-end sm:gap-4"
+            className="admin-card flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4"
           >
             <input type="hidden" name="clientId" value={selectedClient.id} />
             <div className="flex flex-1 flex-col gap-1">
-              <label className="text-xs font-medium text-gray-600">
+              <label className="text-xs font-medium text-white/60">
                 Plataforma
               </label>
-              <select
-                name="platform"
-                required
-                className="rounded border border-gray-300 px-3 py-2 text-sm"
-              >
+              <select name="platform" required>
                 {PLATFORM_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -85,51 +81,41 @@ export default async function AdminCampanasPage({
               </select>
             </div>
             <div className="flex flex-1 flex-col gap-1">
-              <label className="text-xs font-medium text-gray-600">
+              <label className="text-xs font-medium text-white/60">
                 Nombre de la campaña
               </label>
-              <input
-                name="name"
-                required
-                className="rounded border border-gray-300 px-3 py-2 text-sm"
-              />
+              <input name="name" required />
             </div>
             <div className="flex flex-1 flex-col gap-1">
-              <label className="text-xs font-medium text-gray-600">
+              <label className="text-xs font-medium text-white/60">
                 Objetivo (opcional)
               </label>
-              <input
-                name="objective"
-                className="rounded border border-gray-300 px-3 py-2 text-sm"
-              />
+              <input name="objective" />
             </div>
-            <SubmitButton className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90">
+            <SubmitButton className="rounded-full bg-md-admin-gold px-4 py-2 text-sm font-medium text-md-admin-card-deep transition-colors hover:bg-md-admin-gold/90">
               Crear campaña
             </SubmitButton>
           </form>
 
           <div className="flex flex-col gap-4">
             {campaigns.length === 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className="admin-subtle text-sm">
                 {selectedClient.businessName} todavía no tiene campañas
                 registradas.
               </p>
             ) : (
               campaigns.map((campaign) => (
-                <div
-                  key={campaign.id}
-                  className="rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-5"
-                >
+                <div key={campaign.id} className="admin-card">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-[16rem] flex-1">
                       <EditToggle
                         key={JSON.stringify(campaign)}
                         view={
                           <div>
-                            <p className="text-sm font-semibold text-gray-900">
+                            <p className="text-sm font-semibold text-white">
                               {campaign.name}
                             </p>
-                            <p className="text-xs uppercase tracking-wide text-gray-500">
+                            <p className="text-xs uppercase tracking-wide text-md-admin-rose-muted/70">
                               {campaign.platform === "meta"
                                 ? "Meta Ads"
                                 : "Google Ads"}
@@ -148,18 +134,18 @@ export default async function AdminCampanasPage({
                               name="name"
                               defaultValue={campaign.name}
                               required
-                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                              className="text-xs"
                             />
                             <input
                               name="objective"
                               defaultValue={campaign.objective ?? ""}
                               placeholder="Objetivo"
-                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                              className="text-xs"
                             />
                             <select
                               name="status"
                               defaultValue={campaign.status}
-                              className="rounded border border-gray-300 px-2 py-1 text-xs"
+                              className="text-xs"
                             >
                               {STATUS_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>
@@ -169,7 +155,7 @@ export default async function AdminCampanasPage({
                             </select>
                             <button
                               type="submit"
-                              className="w-fit rounded-full bg-md-teal px-3 py-1 text-xs font-medium text-white hover:bg-md-teal/90"
+                              className="w-fit rounded-full bg-md-admin-gold px-3 py-1 text-xs font-medium text-md-admin-card-deep hover:bg-md-admin-gold/90"
                             >
                               Guardar
                             </button>
@@ -179,7 +165,7 @@ export default async function AdminCampanasPage({
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       {campaign.latestStat && (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-md-admin-rose-muted/70">
                           Última:{" "}
                           {new Date(
                             campaign.latestStat.statDate
@@ -197,17 +183,17 @@ export default async function AdminCampanasPage({
                   {allClients.length > 1 && (
                     <form
                       action={duplicateCampaign}
-                      className="flex items-center gap-2 border-t border-gray-100 pt-3"
+                      className="flex items-center gap-2 border-t border-white/10 pt-3"
                     >
                       <input type="hidden" name="campaignId" value={campaign.id} />
-                      <label className="text-xs text-gray-500">
+                      <label className="text-xs text-md-admin-rose-muted/70">
                         Duplicar a
                       </label>
                       <select
                         name="targetClientId"
                         required
                         defaultValue=""
-                        className="rounded border border-gray-300 px-2 py-1 text-xs"
+                        className="text-xs"
                       >
                         <option value="" disabled>
                           Elegir cliente…
@@ -222,7 +208,7 @@ export default async function AdminCampanasPage({
                       </select>
                       <button
                         type="submit"
-                        className="rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-100"
+                        className="rounded-full border border-white/20 px-3 py-1 text-xs text-white transition-colors hover:bg-white/10"
                       >
                         Duplicar
                       </button>
@@ -230,11 +216,11 @@ export default async function AdminCampanasPage({
                   )}
 
                   {campaign.stats.length > 0 && (
-                    <details className="border-t border-gray-100 pt-3">
-                      <summary className="cursor-pointer text-xs font-medium text-md-teal">
+                    <details className="border-t border-white/10 pt-3">
+                      <summary className="cursor-pointer text-xs font-medium text-md-admin-gold">
                         Ver historial de estadísticas ({campaign.stats.length})
                       </summary>
-                      <div className="mt-3 flex flex-col divide-y divide-gray-100">
+                      <div className="mt-3 flex flex-col divide-y divide-white/10">
                         {campaign.stats
                           .slice()
                           .reverse()
@@ -246,7 +232,7 @@ export default async function AdminCampanasPage({
                               <EditToggle
                                 key={JSON.stringify(stat)}
                                 view={
-                                  <p className="text-xs text-gray-600">
+                                  <p className="text-xs text-md-admin-rose-muted">
                                     {new Date(stat.statDate).toLocaleDateString(
                                       "es-MX"
                                     )}{" "}
@@ -269,21 +255,21 @@ export default async function AdminCampanasPage({
                                       name="statDate"
                                       defaultValue={stat.statDate}
                                       required
-                                      className="rounded border border-gray-300 px-2 py-1 text-xs"
+                                      className="text-xs"
                                     />
                                     <input
                                       type="number"
                                       name="impressions"
                                       min={0}
                                       defaultValue={stat.impressions}
-                                      className="rounded border border-gray-300 px-2 py-1 text-xs"
+                                      className="text-xs"
                                     />
                                     <input
                                       type="number"
                                       name="clicks"
                                       min={0}
                                       defaultValue={stat.clicks}
-                                      className="rounded border border-gray-300 px-2 py-1 text-xs"
+                                      className="text-xs"
                                     />
                                     <input
                                       type="number"
@@ -291,11 +277,11 @@ export default async function AdminCampanasPage({
                                       min={0}
                                       step="0.01"
                                       defaultValue={stat.spendMxnCents / 100}
-                                      className="rounded border border-gray-300 px-2 py-1 text-xs"
+                                      className="text-xs"
                                     />
                                     <button
                                       type="submit"
-                                      className="w-fit rounded-full bg-md-teal px-3 py-1 text-xs font-medium text-white hover:bg-md-teal/90"
+                                      className="w-fit rounded-full bg-md-admin-gold px-3 py-1 text-xs font-medium text-md-admin-card-deep hover:bg-md-admin-gold/90"
                                     >
                                       Guardar
                                     </button>
@@ -315,40 +301,25 @@ export default async function AdminCampanasPage({
 
                   <form
                     action={createCampaignStat}
-                    className="mt-4 grid grid-cols-2 gap-3 border-t border-gray-100 pt-4 sm:grid-cols-4 lg:grid-cols-7"
+                    className="mt-4 grid grid-cols-2 gap-3 border-t border-white/10 pt-4 sm:grid-cols-4 lg:grid-cols-7"
                   >
                     <input type="hidden" name="campaignId" value={campaign.id} />
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-gray-500">Fecha</label>
-                      <input
-                        type="date"
-                        name="statDate"
-                        required
-                        className="rounded border border-gray-300 px-2 py-1.5 text-xs"
-                      />
+                      <label className="text-xs text-md-admin-rose-muted/70">Fecha</label>
+                      <input type="date" name="statDate" required className="text-xs" />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-gray-500">
+                      <label className="text-xs text-md-admin-rose-muted/70">
                         Impresiones
                       </label>
-                      <input
-                        type="number"
-                        name="impressions"
-                        min={0}
-                        className="rounded border border-gray-300 px-2 py-1.5 text-xs"
-                      />
+                      <input type="number" name="impressions" min={0} className="text-xs" />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-gray-500">Clics</label>
-                      <input
-                        type="number"
-                        name="clicks"
-                        min={0}
-                        className="rounded border border-gray-300 px-2 py-1.5 text-xs"
-                      />
+                      <label className="text-xs text-md-admin-rose-muted/70">Clics</label>
+                      <input type="number" name="clicks" min={0} className="text-xs" />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-gray-500">
+                      <label className="text-xs text-md-admin-rose-muted/70">
                         Gasto (MXN)
                       </label>
                       <input
@@ -356,21 +327,21 @@ export default async function AdminCampanasPage({
                         name="spendMxn"
                         min={0}
                         step="0.01"
-                        className="rounded border border-gray-300 px-2 py-1.5 text-xs"
+                        className="text-xs"
                       />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-gray-500">CTR (%)</label>
+                      <label className="text-xs text-md-admin-rose-muted/70">CTR (%)</label>
                       <input
                         type="number"
                         name="ctrPercent"
                         min={0}
                         step="0.01"
-                        className="rounded border border-gray-300 px-2 py-1.5 text-xs"
+                        className="text-xs"
                       />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-gray-500">
+                      <label className="text-xs text-md-admin-rose-muted/70">
                         CPC (MXN)
                       </label>
                       <input
@@ -378,27 +349,22 @@ export default async function AdminCampanasPage({
                         name="cpcMxn"
                         min={0}
                         step="0.01"
-                        className="rounded border border-gray-300 px-2 py-1.5 text-xs"
+                        className="text-xs"
                       />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-gray-500">
+                      <label className="text-xs text-md-admin-rose-muted/70">
                         Conversiones
                       </label>
-                      <input
-                        type="number"
-                        name="conversions"
-                        min={0}
-                        className="rounded border border-gray-300 px-2 py-1.5 text-xs"
-                      />
+                      <input type="number" name="conversions" min={0} className="text-xs" />
                     </div>
-                    <SubmitButton className="col-span-2 mt-1 rounded-full border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 sm:col-span-4 lg:col-span-7 lg:w-fit">
+                    <SubmitButton className="col-span-2 mt-1 rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10 sm:col-span-4 lg:col-span-7 lg:w-fit">
                       Registrar estadística
                     </SubmitButton>
                   </form>
 
-                  <details className="mt-3 border-t border-gray-100 pt-3">
-                    <summary className="cursor-pointer text-xs font-medium text-md-teal">
+                  <details className="mt-3 border-t border-white/10 pt-3">
+                    <summary className="cursor-pointer text-xs font-medium text-md-admin-gold">
                       Importar CSV (varias filas de una vez)
                     </summary>
                     <form action={bulkImportCampaignStats} className="mt-3 flex flex-col gap-2">
@@ -408,9 +374,9 @@ export default async function AdminCampanasPage({
                         required
                         rows={4}
                         placeholder={"fecha,impresiones,clics,gasto,conversiones\n2026-01-01,1200,34,150.00,2"}
-                        className="rounded border border-gray-300 px-3 py-2 font-mono text-xs"
+                        className="rounded border border-white/15 bg-white/[0.07] px-3 py-2 font-mono text-xs text-white placeholder:text-white/30"
                       />
-                      <SubmitButton className="w-fit rounded-full border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100">
+                      <SubmitButton className="w-fit rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10">
                         Importar
                       </SubmitButton>
                     </form>

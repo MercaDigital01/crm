@@ -2,6 +2,15 @@ import { type clients } from "@/db/schema";
 
 type ClientStatus = (typeof clients.$inferSelect)["status"];
 
+// The set of statuses that make a client show up in "requiere atención"
+// surfaces (admin Resumen stat tile, alert list, notification bell) — kept
+// as one shared list so those three places can't drift out of sync again.
+export const ATTENTION_STATUSES: ClientStatus[] = [
+  "pendiente_de_pago",
+  "en_gracia",
+  "suspendido",
+];
+
 export const CLIENT_STATUS_META: Record<
   ClientStatus,
   {

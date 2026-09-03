@@ -49,7 +49,7 @@ export async function clearAdminSession(): Promise<void> {
   cookieStore.delete(ADMIN_SESSION_COOKIE);
 }
 
-export type AdminSession = { username: string };
+export type AdminSession = { username: string; displayName: string | null };
 
 export async function getAdminSession(): Promise<AdminSession | null> {
   const cookieStore = await cookies();
@@ -71,12 +71,12 @@ export async function getAdminSession(): Promise<AdminSession | null> {
   // (raw `db`, bypasses RLS — no identity established yet at this point,
   // same precedent as the sign-in lookup) so a deleted account's cookie
   // stops working on its very next request instead of lingering up to 12h.
-  const stillExists = await db.query.staffUsers.findFirst({
+  const account = await db.query.staffUsers.findFirst({
     where: eq(staffUsers.username, username),
   });
-  if (!stillExists) return null;
+  if (!account) return null;
 
-  return { username };
+  return { username, displayName: account.displayName };
 }
 
 // Password hashing (scrypt, built into Node — no native module, so it can't

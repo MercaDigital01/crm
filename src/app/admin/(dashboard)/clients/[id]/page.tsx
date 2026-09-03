@@ -32,13 +32,11 @@ const STATUS_OPTIONS = Object.entries(CLIENT_STATUS_META).map(
 );
 
 const STATUS_PILL = {
-  teal: "bg-md-teal/10 text-md-teal",
-  gold: "bg-md-gold/10 text-[#a5790a]",
-  blue: "bg-md-blue/10 text-md-blue",
-  red: "bg-md-red/10 text-md-red",
+  teal: "bg-md-teal/20 text-md-teal",
+  gold: "bg-md-admin-gold/20 text-md-admin-gold",
+  blue: "bg-blue-400/20 text-blue-300",
+  red: "bg-md-admin-coral/20 text-md-admin-coral",
 } as const;
-
-const CARD_SHADOW = "shadow-[0_2px_10px_rgba(0,0,0,0.02)]";
 
 const ACTIVITY_PAGE_SIZE = 20;
 
@@ -101,20 +99,20 @@ export default async function AdminClientDetailPage({
     <div className="flex flex-col gap-8">
       <Link
         href="/admin/clients"
-        className="w-fit text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
+        className="w-fit text-sm font-medium text-white/50 transition-colors hover:text-white"
       >
         ← Clientes
       </Link>
 
-      <div className={`flex flex-col gap-4 rounded-2xl bg-white p-6 md:p-8 ${CARD_SHADOW}`}>
+      <div className="admin-card flex flex-col gap-4 md:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
+            <h1 className="font-admin-display text-2xl font-semibold text-md-admin-cream">
               {client.businessName}
             </h1>
-            <p className="mt-1 text-sm text-gray-500">{client.contactEmail}</p>
+            <p className="admin-subtle mt-1 text-sm">{client.contactEmail}</p>
             {client.contactPhone && (
-              <p className="text-sm text-gray-500">{client.contactPhone}</p>
+              <p className="admin-subtle text-sm">{client.contactPhone}</p>
             )}
           </div>
           <div className="flex flex-col items-end gap-2">
@@ -126,8 +124,8 @@ export default async function AdminClientDetailPage({
             <span
               className={`rounded-full px-2 py-0.5 text-xs ${
                 client.clerkUserId
-                  ? "bg-md-teal/10 text-md-teal"
-                  : "bg-gray-100 text-gray-500"
+                  ? "bg-md-teal/20 text-md-teal"
+                  : "bg-white/10 text-white/50"
               }`}
             >
               {client.clerkUserId ? "Vinculado" : "Sin reclamar"}
@@ -135,9 +133,9 @@ export default async function AdminClientDetailPage({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-6 border-t border-gray-100 pt-4">
+        <div className="flex flex-wrap items-center gap-6 border-t border-white/10 pt-4">
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+            <span className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
               Estado
             </span>
             <SelectAndSubmit
@@ -150,7 +148,7 @@ export default async function AdminClientDetailPage({
             />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+            <span className="text-xs font-medium uppercase tracking-wide text-md-admin-rose-muted/70">
               Plan
             </span>
             <SelectAndSubmit
@@ -163,8 +161,8 @@ export default async function AdminClientDetailPage({
           </div>
         </div>
 
-        <details className="border-t border-gray-100 pt-4">
-          <summary className="cursor-pointer text-xs font-medium text-md-teal">
+        <details className="border-t border-white/10 pt-4">
+          <summary className="cursor-pointer text-xs font-medium text-md-admin-gold">
             Editar perfil
           </summary>
           <form
@@ -176,24 +174,24 @@ export default async function AdminClientDetailPage({
               name="businessName"
               defaultValue={client.businessName}
               required
-              className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+              className="flex-1"
             />
             <input
               name="contactEmail"
               type="email"
               defaultValue={client.contactEmail}
               required
-              className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+              className="flex-1"
             />
             <input
               name="contactPhone"
               defaultValue={client.contactPhone ?? ""}
               placeholder="Teléfono"
-              className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+              className="flex-1"
             />
             <button
               type="submit"
-              className="w-fit rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white hover:bg-md-teal/90"
+              className="w-fit rounded-full bg-md-admin-gold px-4 py-2 text-sm font-medium text-md-admin-card-deep hover:bg-md-admin-gold/90"
             >
               Guardar
             </button>
@@ -201,18 +199,18 @@ export default async function AdminClientDetailPage({
         </details>
       </div>
 
-      <details open className={`rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
-        <summary className="cursor-pointer text-sm font-semibold text-gray-900">
+      <details open className="admin-card">
+        <summary className="cursor-pointer text-sm font-semibold text-md-admin-cream">
           Campañas ({campaigns.length})
         </summary>
         <div className="mt-4 flex flex-col gap-3">
           {campaigns.length === 0 ? (
-            <p className="text-sm text-gray-500">Sin campañas registradas.</p>
+            <p className="admin-subtle text-sm">Sin campañas registradas.</p>
           ) : (
             campaigns.map((c) => (
-              <div key={c.id} className="flex items-center justify-between border-t border-gray-100 pt-3 text-sm">
-                <span className="font-medium text-gray-900">{c.name}</span>
-                <span className="text-xs text-gray-500">
+              <div key={c.id} className="flex items-center justify-between border-t border-white/10 pt-3 text-sm">
+                <span className="font-medium text-white">{c.name}</span>
+                <span className="text-xs text-md-admin-rose-muted/70">
                   {c.platform === "meta" ? "Meta Ads" : "Google Ads"} · {c.status}
                 </span>
               </div>
@@ -220,7 +218,7 @@ export default async function AdminClientDetailPage({
           )}
           <Link
             href={`/admin/campanas?clientId=${client.id}`}
-            className="mt-1 w-fit text-xs font-medium text-md-teal hover:underline"
+            className="mt-1 w-fit text-xs font-medium text-md-admin-gold hover:underline"
           >
             Gestionar campañas →
           </Link>
@@ -228,10 +226,10 @@ export default async function AdminClientDetailPage({
       </details>
 
       {(contentReqs.length > 0 || adjustmentReqs.length > 0) && (
-        <div className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
+        <div className="admin-card flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-gray-900">Solicitudes</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-sm font-semibold text-md-admin-cream">Solicitudes</p>
+            <p className="admin-subtle text-xs">
               {pendingRequests > 0
                 ? `${pendingRequests} pendiente${pendingRequests === 1 ? "" : "s"}`
                 : "Todas revisadas"}
@@ -239,25 +237,25 @@ export default async function AdminClientDetailPage({
           </div>
           <Link
             href={`/admin/solicitudes?clientId=${client.id}`}
-            className="w-fit rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+            className="w-fit rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
           >
             Ver solicitudes →
           </Link>
         </div>
       )}
 
-      <details className={`rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
-        <summary className="cursor-pointer text-sm font-semibold text-gray-900">
+      <details className="admin-card">
+        <summary className="cursor-pointer text-sm font-semibold text-md-admin-cream">
           Calendario de contenido ({contentItems.length})
         </summary>
         <div className="mt-4 flex flex-col gap-3">
           {contentItems.length === 0 ? (
-            <p className="text-sm text-gray-500">Sin contenido programado.</p>
+            <p className="admin-subtle text-sm">Sin contenido programado.</p>
           ) : (
             contentItems.slice(0, 8).map((item) => (
-              <div key={item.id} className="flex items-center justify-between border-t border-gray-100 pt-3 text-sm">
-                <span className="font-medium text-gray-900">{item.title}</span>
-                <span className="text-xs text-gray-500">
+              <div key={item.id} className="flex items-center justify-between border-t border-white/10 pt-3 text-sm">
+                <span className="font-medium text-white">{item.title}</span>
+                <span className="text-xs text-md-admin-rose-muted/70">
                   {new Date(item.scheduledDate).toLocaleDateString("es-MX")}
                 </span>
               </div>
@@ -265,27 +263,27 @@ export default async function AdminClientDetailPage({
           )}
           <Link
             href={`/admin/calendario?clientId=${client.id}`}
-            className="mt-1 w-fit text-xs font-medium text-md-teal hover:underline"
+            className="mt-1 w-fit text-xs font-medium text-md-admin-gold hover:underline"
           >
             Gestionar calendario →
           </Link>
         </div>
       </details>
 
-      <details className={`rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
-        <summary className="cursor-pointer text-sm font-semibold text-gray-900">
+      <details className="admin-card">
+        <summary className="cursor-pointer text-sm font-semibold text-md-admin-cream">
           Conversaciones ({events.length})
         </summary>
         <div className="mt-4 flex flex-col gap-3">
           {events.length === 0 ? (
-            <p className="text-sm text-gray-500">Sin conversaciones registradas.</p>
+            <p className="admin-subtle text-sm">Sin conversaciones registradas.</p>
           ) : (
             events.slice(0, 8).map((event) => (
-              <div key={event.id} className="flex items-center justify-between border-t border-gray-100 pt-3 text-sm">
-                <span className="font-medium text-gray-900">
+              <div key={event.id} className="flex items-center justify-between border-t border-white/10 pt-3 text-sm">
+                <span className="font-medium text-white">
                   {event.contactName ?? event.contactPhone ?? "—"}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-md-admin-rose-muted/70">
                   {new Date(event.occurredAt).toLocaleDateString("es-MX")}
                 </span>
               </div>
@@ -293,15 +291,15 @@ export default async function AdminClientDetailPage({
           )}
           <Link
             href={`/admin/conversaciones?clientId=${client.id}`}
-            className="mt-1 w-fit text-xs font-medium text-md-teal hover:underline"
+            className="mt-1 w-fit text-xs font-medium text-md-admin-gold hover:underline"
           >
             Gestionar conversaciones →
           </Link>
         </div>
       </details>
 
-      <details open className={`rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
-        <summary className="cursor-pointer text-sm font-semibold text-gray-900">
+      <details open className="admin-card">
+        <summary className="cursor-pointer text-sm font-semibold text-md-admin-cream">
           Pendientes internos ({tasks.filter((t) => !t.done).length})
         </summary>
         <div className="mt-4 flex flex-col gap-3">
@@ -311,23 +309,23 @@ export default async function AdminClientDetailPage({
               name="title"
               required
               placeholder="Ej. Pedir fotos del local"
-              className="w-full max-w-sm rounded border border-gray-300 px-3 py-2 text-sm"
+              className="w-full max-w-sm"
             />
             <button
               type="submit"
-              className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white hover:bg-md-teal/90"
+              className="rounded-full bg-md-admin-gold px-4 py-2 text-sm font-medium text-md-admin-card-deep hover:bg-md-admin-gold/90"
             >
               Agregar
             </button>
           </form>
           {tasks.length === 0 ? (
-            <p className="text-sm text-gray-500">Sin pendientes.</p>
+            <p className="admin-subtle text-sm">Sin pendientes.</p>
           ) : (
-            <div className="flex flex-col divide-y divide-gray-100">
+            <div className="flex flex-col divide-y divide-white/10">
               {tasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center gap-3 border-t border-gray-100 py-2.5 first:border-t-0"
+                  className="flex items-center gap-3 border-t border-white/10 py-2.5 first:border-t-0"
                 >
                   <TaskCheckbox
                     action={toggleClientTask}
@@ -336,7 +334,7 @@ export default async function AdminClientDetailPage({
                     done={task.done}
                   />
                   <span
-                    className={`flex-1 text-sm ${task.done ? "text-gray-400 line-through" : "text-gray-900"}`}
+                    className={`flex-1 text-sm ${task.done ? "text-white/30 line-through" : "text-white"}`}
                   >
                     {task.title}
                   </span>
@@ -353,25 +351,25 @@ export default async function AdminClientDetailPage({
         </div>
       </details>
 
-      <details className={`rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
-        <summary className="cursor-pointer text-sm font-semibold text-gray-900">
+      <details className="admin-card">
+        <summary className="cursor-pointer text-sm font-semibold text-md-admin-cream">
           Entregables ({files.length})
         </summary>
         <div className="mt-4 flex flex-col gap-3">
           {files.length === 0 ? (
-            <p className="text-sm text-gray-500">Sin entregables subidos.</p>
+            <p className="admin-subtle text-sm">Sin entregables subidos.</p>
           ) : (
-            <div className="flex flex-col divide-y divide-gray-100">
+            <div className="flex flex-col divide-y divide-white/10">
               {files.map((file) => (
                 <a
                   key={file.id}
                   href={file.fileUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-between border-t border-gray-100 py-2.5 text-sm first:border-t-0 hover:text-md-teal"
+                  className="flex items-center justify-between border-t border-white/10 py-2.5 text-sm first:border-t-0 hover:text-md-admin-gold"
                 >
-                  <span className="text-gray-900">{file.title}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-white">{file.title}</span>
+                  <span className="text-xs text-md-admin-rose-muted/70">
                     {new Date(file.createdAt).toLocaleDateString("es-MX")}
                   </span>
                 </a>
@@ -382,20 +380,20 @@ export default async function AdminClientDetailPage({
         </div>
       </details>
 
-      <details className={`rounded-2xl bg-white p-6 ${CARD_SHADOW}`}>
-        <summary className="cursor-pointer text-sm font-semibold text-gray-900">
+      <details className="admin-card">
+        <summary className="cursor-pointer text-sm font-semibold text-md-admin-cream">
           Actividad reciente en el perfil
         </summary>
         <div className="mt-4 flex flex-col gap-3">
           {visibleActivity.length === 0 ? (
-            <p className="text-sm text-gray-500">
+            <p className="admin-subtle text-sm">
               Sin cambios registrados directamente sobre este perfil todavía.
             </p>
           ) : (
             visibleActivity.map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between border-t border-gray-100 pt-3 text-sm">
-                <span className="text-gray-700">{entry.summary}</span>
-                <span className="text-xs text-gray-400">
+              <div key={entry.id} className="flex items-center justify-between border-t border-white/10 pt-3 text-sm">
+                <span className="text-white/80">{entry.summary}</span>
+                <span className="text-xs text-md-admin-rose-muted/70">
                   {entry.actorUsername} ·{" "}
                   {new Date(entry.createdAt).toLocaleDateString("es-MX")}
                 </span>
@@ -405,7 +403,7 @@ export default async function AdminClientDetailPage({
           {hasMoreActivity && (
             <Link
               href={`/admin/clients/${client.id}?activityLimit=${activityLimit + ACTIVITY_PAGE_SIZE}`}
-              className="mt-1 w-fit text-xs font-medium text-md-teal hover:underline"
+              className="mt-1 w-fit text-xs font-medium text-md-admin-gold hover:underline"
             >
               Ver más →
             </Link>

@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Geist, Geist_Mono, Space_Grotesk, Space_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Poppins,
+  Space_Grotesk,
+  Space_Mono,
+} from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,6 +31,18 @@ const spaceMono = Space_Mono({
   weight: ["400", "700"],
 });
 
+// Admin panel v2 (dark maroon/gold) own-world typography — one geometric
+// sans (Poppins) across headings, big stat numbers, and body text, using
+// weight alone for hierarchy. No italics. Deliberately distinct from the
+// marketing site's Space Grotesk/Mono pairing above: same "committed
+// own-world type, not default system chrome" principle, applied to the
+// admin world's own character.
+const admin_sans = Poppins({
+  variable: "--font-admin-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
 export const metadata: Metadata = {
   title: "Merca Digital — El tablero de tu negocio",
   description:
@@ -36,7 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <ClerkProvider>
       <html
         lang="es"
-        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${spaceMono.variable} h-full antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${spaceMono.variable} ${admin_sans.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col">
           {/*

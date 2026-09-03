@@ -29,7 +29,7 @@ export function DeleteButton({
         ))}
       <button
         type="submit"
-        className="rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-500 transition-colors hover:border-md-red/40 hover:bg-md-red/10 hover:text-md-red"
+        className="rounded-full border border-white/15 px-3 py-1 text-xs text-white/60 transition-colors hover:border-md-admin-coral/50 hover:bg-md-admin-coral/10 hover:text-md-admin-coral"
       >
         {label}
       </button>

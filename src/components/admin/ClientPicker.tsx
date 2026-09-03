@@ -25,7 +25,7 @@ export function ClientPicker({
         }
         router.push(`${pathname}?${params.toString()}`);
       }}
-      className="rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+      className="rounded border border-white/15 bg-white/[0.07] px-3 py-2 text-sm text-white"
     >
       <option value="">Selecciona un cliente…</option>
       {clients.map((client) => (

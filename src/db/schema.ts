@@ -502,6 +502,7 @@ export const staffUsers = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     username: text("username").notNull().unique(),
+    displayName: text("display_name"),
     passwordHash: text("password_hash").notNull(),
     failedAttempts: integer("failed_attempts").notNull().default(0),
     lockedUntil: timestamp("locked_until", { withTimezone: true }),

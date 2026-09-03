@@ -1,12 +1,11 @@
 import { asc } from "drizzle-orm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { EditToggle } from "@/components/admin/EditToggle";
 import { staffUsers } from "@/db/schema";
 import { withAppUser } from "@/db/session";
 import { getAdminSession } from "@/lib/admin-session";
 import { requireStaffOrRedirect } from "@/lib/staff";
-import { createStaffUser, deleteStaffUser } from "./actions";
-
-const CARD_SHADOW = "shadow-[0_2px_10px_rgba(0,0,0,0.02)]";
+import { createStaffUser, deleteStaffUser, updateStaffDisplayName } from "./actions";
 
 export default async function AdminStaffPage() {
   await requireStaffOrRedirect("/admin/staff");
@@ -21,10 +20,8 @@ export default async function AdminStaffPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Cuentas de staff
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="admin-h1">Cuentas de staff</h1>
+        <p className="admin-subtle mt-1 text-sm">
           Cuentas con nombre propio en vez de una contraseña compartida.
           Todas tienen el mismo nivel de acceso — no hay roles por ahora.
         </p>
@@ -32,57 +29,79 @@ export default async function AdminStaffPage() {
 
       <form
         action={createStaffUser}
-        className="flex flex-col gap-3 rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-5 sm:flex-row sm:items-end sm:gap-4"
+        className="admin-card flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4"
       >
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">Usuario</label>
-          <input
-            name="username"
-            required
-            className="rounded border border-gray-300 px-3 py-2 text-sm"
-          />
+          <label className="text-xs font-medium text-white/60">Usuario</label>
+          <input name="username" required />
         </div>
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">
+          <label className="text-xs font-medium text-white/60">
             Contraseña (mín. 8 caracteres)
           </label>
-          <input
-            type="password"
-            name="password"
-            minLength={8}
-            required
-            className="rounded border border-gray-300 px-3 py-2 text-sm"
-          />
+          <input type="password" name="password" minLength={8} required />
         </div>
         <button
           type="submit"
-          className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90"
+          className="rounded-full bg-md-admin-gold px-4 py-2 text-sm font-medium text-md-admin-card-deep transition-colors hover:bg-md-admin-gold/90"
         >
           Crear cuenta
         </button>
       </form>
 
-      <div className={`overflow-x-auto rounded-2xl bg-white ${CARD_SHADOW}`}>
+      <div className="admin-card overflow-x-auto p-0">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+          <thead>
             <tr>
               <th className="px-4 py-3">Usuario</th>
+              <th className="px-4 py-3">Nombre para mostrar</th>
               <th className="px-4 py-3">Creada</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {accounts.map((account) => (
               <tr key={account.id}>
-                <td className="px-4 py-3 font-medium text-gray-900">
+                <td className="px-4 py-3 font-medium text-white">
                   {account.username}
                   {account.username === session?.username && (
-                    <span className="ml-2 rounded-full bg-md-teal/10 px-2 py-0.5 text-[10px] font-medium text-md-teal">
+                    <span className="ml-2 rounded-full bg-md-teal/20 px-2 py-0.5 text-[10px] font-medium text-md-teal">
                       Tú
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-gray-600">
+                <td className="px-4 py-3 text-md-admin-rose-muted">
+                  <EditToggle
+                    view={
+                      account.displayName || (
+                        <span className="text-md-admin-rose-muted/60">
+                          Usa el nombre de usuario
+                        </span>
+                      )
+                    }
+                    edit={
+                      <form
+                        action={updateStaffDisplayName}
+                        className="flex items-center gap-2"
+                      >
+                        <input type="hidden" name="id" value={account.id} />
+                        <input
+                          name="displayName"
+                          defaultValue={account.displayName ?? ""}
+                          placeholder="Nombre para el saludo"
+                          className="text-sm"
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-full bg-md-admin-gold px-3 py-1 text-xs font-medium text-md-admin-card-deep hover:bg-md-admin-gold/90"
+                        >
+                          Guardar
+                        </button>
+                      </form>
+                    }
+                  />
+                </td>
+                <td className="px-4 py-3 text-md-admin-rose-muted">
                   {new Date(account.createdAt).toLocaleDateString("es-MX")}
                 </td>
                 <td className="px-4 py-3">

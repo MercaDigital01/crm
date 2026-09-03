@@ -24,7 +24,7 @@ export function TaskCheckbox({
         type="checkbox"
         defaultChecked={done}
         onChange={() => formRef.current?.requestSubmit()}
-        className="h-4 w-4 rounded border-gray-300 text-md-teal focus:ring-md-teal"
+        className="h-4 w-4 rounded border-white/30 bg-white/10 text-md-teal focus:ring-md-teal"
       />
     </form>
   );

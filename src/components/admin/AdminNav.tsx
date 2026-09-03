@@ -31,8 +31,8 @@ export function AdminNav() {
             aria-current={active ? "page" : undefined}
             className={`whitespace-nowrap border-b-2 py-1 text-sm font-medium transition-colors ${
               active
-                ? "border-md-teal text-gray-900"
-                : "border-transparent text-gray-500 hover:text-gray-900"
+                ? "border-md-admin-coral text-white"
+                : "border-transparent text-white/50 hover:text-white/80"
             }`}
           >
             {tab.label}

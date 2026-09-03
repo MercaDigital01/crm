@@ -17,8 +17,8 @@ export default async function AdminPlanesPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Planes</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="admin-h1">Planes</h1>
+        <p className="admin-subtle mt-1 text-sm">
           Los planes que crees aquí quedan disponibles para asignar en
           Clientes.
         </p>
@@ -26,48 +26,34 @@ export default async function AdminPlanesPage() {
 
       <form
         action={createPlan}
-        className="flex flex-col gap-3 rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-5 sm:flex-row sm:items-end sm:gap-4"
+        className="admin-card flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4"
       >
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">
+          <label className="text-xs font-medium text-white/60">
             Nombre del plan
           </label>
-          <input
-            name="name"
-            required
-            className="rounded border border-gray-300 px-3 py-2 text-sm"
-          />
+          <input name="name" required />
         </div>
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">
+          <label className="text-xs font-medium text-white/60">
             Precio mensual (MXN)
           </label>
-          <input
-            type="number"
-            name="priceMxn"
-            min={0}
-            step="0.01"
-            required
-            className="rounded border border-gray-300 px-3 py-2 text-sm"
-          />
+          <input type="number" name="priceMxn" min={0} step="0.01" required />
         </div>
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">
+          <label className="text-xs font-medium text-white/60">
             Descripción (opcional)
           </label>
-          <input
-            name="description"
-            className="rounded border border-gray-300 px-3 py-2 text-sm"
-          />
+          <input name="description" />
         </div>
-        <SubmitButton className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90">
+        <SubmitButton className="rounded-full bg-md-admin-gold px-4 py-2 text-sm font-medium text-md-admin-card-deep transition-colors hover:bg-md-admin-gold/90">
           Crear plan
         </SubmitButton>
       </form>
 
-      <div className="overflow-x-auto rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+      <div className="admin-card overflow-x-auto p-0">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+          <thead>
             <tr>
               <th className="px-4 py-3">Nombre</th>
               <th className="px-4 py-3">Precio</th>
@@ -75,7 +61,7 @@ export default async function AdminPlanesPage() {
               <th className="px-4 py-3" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {allPlans.map((plan) => (
               <tr key={plan.id}>
                 <td colSpan={3} className="px-4 py-3">
@@ -83,15 +69,15 @@ export default async function AdminPlanesPage() {
                     key={JSON.stringify(plan)}
                     view={
                       <div className="grid grid-cols-3 gap-2">
-                        <p className="font-medium text-gray-900">{plan.name}</p>
-                        <p className="text-gray-600">
+                        <p className="font-medium text-white">{plan.name}</p>
+                        <p className="text-md-admin-rose-muted">
                           {(plan.priceMxnCents / 100).toLocaleString("es-MX", {
                             style: "currency",
                             currency: "MXN",
                           })}{" "}
                           / mes
                         </p>
-                        <p className="text-gray-600">
+                        <p className="text-md-admin-rose-muted">
                           {plan.description ?? "—"}
                         </p>
                       </div>
@@ -106,7 +92,7 @@ export default async function AdminPlanesPage() {
                           name="name"
                           defaultValue={plan.name}
                           required
-                          className="rounded border border-gray-300 px-2 py-1 text-xs"
+                          className="text-xs"
                         />
                         <input
                           type="number"
@@ -115,17 +101,17 @@ export default async function AdminPlanesPage() {
                           step="0.01"
                           defaultValue={plan.priceMxnCents / 100}
                           required
-                          className="rounded border border-gray-300 px-2 py-1 text-xs"
+                          className="text-xs"
                         />
                         <div className="flex gap-2">
                           <input
                             name="description"
                             defaultValue={plan.description ?? ""}
-                            className="w-full rounded border border-gray-300 px-2 py-1 text-xs"
+                            className="w-full text-xs"
                           />
                           <button
                             type="submit"
-                            className="shrink-0 rounded-full bg-md-teal px-3 py-1 text-xs font-medium text-white hover:bg-md-teal/90"
+                            className="shrink-0 rounded-full bg-md-admin-gold px-3 py-1 text-xs font-medium text-md-admin-card-deep hover:bg-md-admin-gold/90"
                           >
                             Guardar
                           </button>
@@ -147,7 +133,7 @@ export default async function AdminPlanesPage() {
               <tr>
                 <td
                   colSpan={4}
-                  className="px-4 py-6 text-center text-sm text-gray-500"
+                  className="px-4 py-6 text-center text-sm text-md-admin-rose-muted"
                 >
                   Todavía no hay planes creados.
                 </td>

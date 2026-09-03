@@ -20,7 +20,7 @@ export function EditToggle({
           type="button"
           onClick={() => setEditing(false)}
           aria-label="Cancelar edición"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white"
         >
           <X size={14} strokeWidth={2} />
         </button>
@@ -35,7 +35,7 @@ export function EditToggle({
         type="button"
         onClick={() => setEditing(true)}
         aria-label="Editar"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white"
       >
         <Pencil size={14} strokeWidth={2} />
       </button>

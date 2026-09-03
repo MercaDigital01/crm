@@ -10,6 +10,20 @@
   --md-red: #fa171f;
   --md-blue: #076fa7;
 
+  /* Admin panel v2 — dark maroon/gold redesign (2026-09-02), replaces the
+     old light/utilitarian admin world. Sampled from the user's reference
+     mockup, not approximated. */
+  --md-admin-bg: #5c2530;
+  --md-admin-card: #75303c;
+  --md-admin-card-soft: #693042;
+  --md-admin-card-deep: #3d1119;
+  --md-admin-gold: #f0c14b;
+  --md-admin-gold-deep: #d9a227;
+  --md-admin-coral: #e8695c;
+  --md-admin-cream: #fdf6ef;
+  --md-admin-cream-active: #f6d9d3;
+  --md-admin-rose-muted: #d9a9ac;
+
   /* Panel chassis (the marketing site's own world) */
   --panel-chassis: #121417;
   --panel-chassis-raised: #1b1e23;
@@ -28,10 +42,22 @@
   --font-mono: var(--font-geist-mono);
   --font-panel-display: var(--font-panel-display);
   --font-panel-mono: var(--font-panel-mono);
+  --font-admin-display: var(--font-admin-sans);
+  --font-admin-sans: var(--font-admin-sans);
   --color-md-teal: var(--md-teal);
   --color-md-gold: var(--md-gold);
   --color-md-red: var(--md-red);
   --color-md-blue: var(--md-blue);
+  --color-md-admin-bg: var(--md-admin-bg);
+  --color-md-admin-card: var(--md-admin-card);
+  --color-md-admin-card-soft: var(--md-admin-card-soft);
+  --color-md-admin-card-deep: var(--md-admin-card-deep);
+  --color-md-admin-gold: var(--md-admin-gold);
+  --color-md-admin-gold-deep: var(--md-admin-gold-deep);
+  --color-md-admin-coral: var(--md-admin-coral);
+  --color-md-admin-cream: var(--md-admin-cream);
+  --color-md-admin-cream-active: var(--md-admin-cream-active);
+  --color-md-admin-rose-muted: var(--md-admin-rose-muted);
   --color-panel-chassis: var(--panel-chassis);
   --color-panel-plate: var(--panel-plate);
   --color-panel-ink: var(--panel-ink);
@@ -49,20 +75,23 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Internal staff admin (/admin/**): deliberately plain/utilitarian per
-   DESIGN.md, not the dark panel-chassis world — but still one consistent,
-   branded control vocabulary rather than unstyled browser defaults. */
+/* Internal staff admin (/admin/**): admin v2 dark maroon/gold system (see
+   the "Admin panel v2" tokens above) — one consistent, branded control
+   vocabulary rather than unstyled browser defaults. Inputs/selects here
+   default to the dark-on-dark treatment; a form still sitting on one of the
+   old light cards (not yet migrated) should override with bg-white
+   locally rather than relying on these defaults. */
 @layer components {
   .admin-panel input:not([type="hidden"]),
   .admin-panel select {
-    @apply rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900;
+    @apply rounded-lg border border-white/15 bg-white/[0.07] px-3 py-2 text-sm text-white placeholder:text-white/40;
   }
 
   .admin-panel input:not([type="hidden"]):focus-visible,
   .admin-panel select:focus-visible,
   .admin-panel button:focus-visible,
   .admin-panel a:focus-visible {
-    @apply outline-none ring-2 ring-md-teal/40 ring-offset-1;
+    @apply outline-none ring-2 ring-md-admin-gold/50 ring-offset-1 ring-offset-md-admin-bg;
   }
 
   /* Subtle dot-grid texture for the two "special" dark accent cards
@@ -92,7 +121,30 @@ body {
   }
 
   .admin-panel table tbody tr:hover {
-    @apply bg-gray-50;
+    @apply bg-white/5;
+  }
+
+  /* Shared admin v2 vocabulary — same glass card, heading, and muted-text
+     treatment established on the Resumen page, reused everywhere else in
+     /admin so pages don't each reinvent the same utility soup. */
+  .admin-card {
+    @apply rounded-2xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur-md sm:p-6;
+  }
+
+  .admin-h1 {
+    @apply font-admin-display text-2xl font-semibold text-md-admin-cream sm:text-3xl;
+  }
+
+  .admin-subtle {
+    @apply text-md-admin-rose-muted;
+  }
+
+  .admin-panel table thead {
+    @apply border-b border-white/10 text-xs uppercase tracking-wide text-md-admin-rose-muted/70;
+  }
+
+  .admin-panel table tbody {
+    @apply divide-y divide-white/10;
   }
 }
 

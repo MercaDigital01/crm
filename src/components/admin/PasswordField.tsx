@@ -14,7 +14,7 @@ export function PasswordField({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-xs font-medium text-gray-600">
+      <label htmlFor={id} className="text-xs font-medium text-white/60">
         Contraseña
       </label>
       <div className="relative">
@@ -24,13 +24,13 @@ export function PasswordField({
           type={visible ? "text" : "password"}
           required
           autoComplete="current-password"
-          className="w-full rounded border border-gray-300 px-3 py-2 pr-10 text-sm"
+          className="w-full rounded border border-white/15 bg-white/[0.07] px-3 py-2 pr-10 text-sm text-white"
         />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
-          className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition-colors hover:text-gray-600"
+          className="absolute inset-y-0 right-0 flex items-center px-3 text-white/40 transition-colors hover:text-white"
         >
           {visible ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>

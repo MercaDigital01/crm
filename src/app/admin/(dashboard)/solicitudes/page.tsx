@@ -19,8 +19,6 @@ const ADJUSTMENT_TYPE_COPY = {
   otro: "Otro ajuste",
 } as const;
 
-const CARD_SHADOW = "shadow-[0_2px_10px_rgba(0,0,0,0.02)]";
-
 export default async function AdminSolicitudesPage({
   searchParams,
 }: {
@@ -74,27 +72,27 @@ export default async function AdminSolicitudesPage({
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Solicitudes</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="admin-h1">Solicitudes</h1>
+        <p className="admin-subtle mt-1 text-sm">
           Ideas de contenido y ajustes de campaña que los clientes te mandan
           desde su dashboard.
         </p>
         {clientId && (
           <Link
             href="/admin/solicitudes"
-            className="mt-1 inline-block text-xs font-medium text-md-teal hover:underline"
+            className="mt-1 inline-block text-xs font-medium text-md-admin-gold hover:underline"
           >
             Ver de todos los clientes →
           </Link>
         )}
       </div>
 
-      <div className={`overflow-x-auto rounded-2xl bg-white ${CARD_SHADOW}`}>
-        <h2 className="px-5 pt-5 text-sm font-semibold text-gray-900">
+      <div className="admin-card overflow-x-auto p-0">
+        <h2 className="px-5 pt-5 text-sm font-semibold text-md-admin-cream">
           Ideas de contenido ({filteredContentReqs.length})
         </h2>
         <table className="mt-3 w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+          <thead>
             <tr>
               <th className="px-4 py-3">Cliente</th>
               <th className="px-4 py-3">Idea</th>
@@ -102,19 +100,19 @@ export default async function AdminSolicitudesPage({
               <th className="px-4 py-3">Estado</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {filteredContentReqs.map((req) => (
               <tr key={req.id}>
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/clients/${req.clientId}`}
-                    className="font-medium text-gray-900 hover:text-md-teal hover:underline"
+                    className="font-medium text-white hover:text-md-admin-gold hover:underline"
                   >
                     {req.businessName}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-gray-900">{req.title}</td>
-                <td className="px-4 py-3 text-gray-600">{req.notes ?? "—"}</td>
+                <td className="px-4 py-3 text-white">{req.title}</td>
+                <td className="px-4 py-3 text-md-admin-rose-muted">{req.notes ?? "—"}</td>
                 <td className="px-4 py-3">
                   <SelectAndSubmit
                     action={updateContentRequestStatus}
@@ -128,7 +126,7 @@ export default async function AdminSolicitudesPage({
             ))}
             {filteredContentReqs.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-500">
+                <td colSpan={4} className="px-4 py-6 text-center text-sm text-md-admin-rose-muted">
                   Sin ideas de contenido pendientes.
                 </td>
               </tr>
@@ -137,12 +135,12 @@ export default async function AdminSolicitudesPage({
         </table>
       </div>
 
-      <div className={`overflow-x-auto rounded-2xl bg-white ${CARD_SHADOW}`}>
-        <h2 className="px-5 pt-5 text-sm font-semibold text-gray-900">
+      <div className="admin-card overflow-x-auto p-0">
+        <h2 className="px-5 pt-5 text-sm font-semibold text-md-admin-cream">
           Ajustes de campaña ({filteredAdjustmentReqs.length})
         </h2>
         <table className="mt-3 w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+          <thead>
             <tr>
               <th className="px-4 py-3">Cliente</th>
               <th className="px-4 py-3">Campaña</th>
@@ -151,22 +149,22 @@ export default async function AdminSolicitudesPage({
               <th className="px-4 py-3">Estado</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {filteredAdjustmentReqs.map((req) => (
               <tr key={req.id}>
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/clients/${req.clientId}`}
-                    className="font-medium text-gray-900 hover:text-md-teal hover:underline"
+                    className="font-medium text-white hover:text-md-admin-gold hover:underline"
                   >
                     {req.businessName}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-gray-600">{req.campaignName}</td>
-                <td className="px-4 py-3 text-gray-900">
+                <td className="px-4 py-3 text-md-admin-rose-muted">{req.campaignName}</td>
+                <td className="px-4 py-3 text-white">
                   {ADJUSTMENT_TYPE_COPY[req.requestType]}
                 </td>
-                <td className="px-4 py-3 text-gray-600">{req.notes ?? "—"}</td>
+                <td className="px-4 py-3 text-md-admin-rose-muted">{req.notes ?? "—"}</td>
                 <td className="px-4 py-3">
                   <SelectAndSubmit
                     action={updateCampaignAdjustmentRequestStatus}
@@ -180,7 +178,7 @@ export default async function AdminSolicitudesPage({
             ))}
             {filteredAdjustmentReqs.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-500">
+                <td colSpan={5} className="px-4 py-6 text-center text-sm text-md-admin-rose-muted">
                   Sin ajustes de campaña pendientes.
                 </td>
               </tr>

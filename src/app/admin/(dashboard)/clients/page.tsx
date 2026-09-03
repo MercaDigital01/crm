@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, ilike, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import Link from "next/link";
 import { CLIENT_STATUS_META } from "@/app/dashboard/status";
 import { EditToggle } from "@/components/admin/EditToggle";
@@ -45,14 +45,15 @@ export default async function AdminClientsPage({
         )
       : undefined,
     status
-      ? eq(
+      ? inArray(
           clients.status,
-          status as
+          status.split(",") as (
             | "pendiente_de_pago"
             | "activo"
             | "en_gracia"
             | "suspendido"
             | "cancelado"
+          )[]
         )
       : undefined,
     planId ? eq(clients.planId, planId) : undefined,
@@ -95,48 +96,37 @@ export default async function AdminClientsPage({
   return (
     <div className="flex flex-col gap-10">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Clientes</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="admin-h1">Clientes</h1>
+        <p className="admin-subtle mt-1 text-sm">
           Da de alta clientes, ajusta su estado y plan, o entra a su cuenta
           en modo soporte.
         </p>
       </div>
 
       <form
+        id="nuevo-cliente"
         action={createClient}
-        className="flex flex-col gap-3 rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-5 sm:flex-row sm:items-end sm:gap-4"
+        className="admin-card flex flex-col gap-3 scroll-mt-6 sm:flex-row sm:items-end sm:gap-4"
       >
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">
+          <label className="text-xs font-medium text-white/60">
             Nombre del negocio
           </label>
-          <input
-            name="businessName"
-            required
-            className="rounded border border-gray-300 px-3 py-2 text-sm"
-          />
+          <input name="businessName" required />
         </div>
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">
+          <label className="text-xs font-medium text-white/60">
             Correo del cliente
           </label>
-          <input
-            name="contactEmail"
-            type="email"
-            required
-            className="rounded border border-gray-300 px-3 py-2 text-sm"
-          />
+          <input name="contactEmail" type="email" required />
         </div>
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600">
+          <label className="text-xs font-medium text-white/60">
             Teléfono (opcional)
           </label>
-          <input
-            name="contactPhone"
-            className="rounded border border-gray-300 px-3 py-2 text-sm"
-          />
+          <input name="contactPhone" />
         </div>
-        <SubmitButton className="rounded-full bg-md-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-md-teal/90">
+        <SubmitButton className="rounded-full bg-md-admin-gold px-4 py-2 text-sm font-medium text-md-admin-card-deep transition-colors hover:bg-md-admin-gold/90">
           Crear perfil
         </SubmitButton>
       </form>
@@ -148,13 +138,9 @@ export default async function AdminClientsPage({
             name="q"
             defaultValue={search}
             placeholder="Buscar por nombre o correo…"
-            className="w-full max-w-sm rounded border border-gray-300 px-3 py-2 text-sm"
+            className="w-full max-w-sm"
           />
-          <select
-            name="status"
-            defaultValue={status ?? ""}
-            className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-700"
-          >
+          <select name="status" defaultValue={status ?? ""}>
             <option value="">Todos los estados</option>
             {STATUS_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -162,11 +148,7 @@ export default async function AdminClientsPage({
               </option>
             ))}
           </select>
-          <select
-            name="planId"
-            defaultValue={planId ?? ""}
-            className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-700"
-          >
+          <select name="planId" defaultValue={planId ?? ""}>
             <option value="">Todos los planes</option>
             {allPlans.map((plan) => (
               <option key={plan.id} value={plan.id}>
@@ -176,15 +158,15 @@ export default async function AdminClientsPage({
           </select>
           <button
             type="submit"
-            className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm text-white transition-colors hover:bg-white/10"
           >
             Filtrar
           </button>
         </form>
 
-        <div className="overflow-x-auto rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div className="admin-card overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+            <thead>
               <tr>
                 <th className="px-4 py-3">Negocio</th>
                 <th className="px-4 py-3">Vinculado</th>
@@ -193,7 +175,7 @@ export default async function AdminClientsPage({
                 <th className="px-4 py-3">Soporte</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {allClients.map((client) => (
                 <tr key={client.id}>
                   <td className="min-w-[16rem] px-4 py-3">
@@ -203,11 +185,11 @@ export default async function AdminClientsPage({
                         <div>
                           <Link
                             href={`/admin/clients/${client.id}`}
-                            className="font-medium text-gray-900 hover:text-md-teal hover:underline"
+                            className="font-medium text-white hover:text-md-admin-gold hover:underline"
                           >
                             {client.businessName}
                           </Link>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-md-admin-rose-muted/70">
                             {client.contactEmail}
                           </p>
                         </div>
@@ -222,24 +204,24 @@ export default async function AdminClientsPage({
                             name="businessName"
                             defaultValue={client.businessName}
                             required
-                            className="rounded border border-gray-300 px-2 py-1 text-xs"
+                            className="text-xs"
                           />
                           <input
                             name="contactEmail"
                             type="email"
                             defaultValue={client.contactEmail}
                             required
-                            className="rounded border border-gray-300 px-2 py-1 text-xs"
+                            className="text-xs"
                           />
                           <input
                             name="contactPhone"
                             defaultValue={client.contactPhone ?? ""}
                             placeholder="Teléfono"
-                            className="rounded border border-gray-300 px-2 py-1 text-xs"
+                            className="text-xs"
                           />
                           <button
                             type="submit"
-                            className="w-fit rounded-full bg-md-teal px-3 py-1 text-xs font-medium text-white hover:bg-md-teal/90"
+                            className="w-fit rounded-full bg-md-admin-gold px-3 py-1 text-xs font-medium text-md-admin-card-deep hover:bg-md-admin-gold/90"
                           >
                             Guardar
                           </button>
@@ -251,8 +233,8 @@ export default async function AdminClientsPage({
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs ${
                         client.clerkUserId
-                          ? "bg-md-teal/10 text-md-teal"
-                          : "bg-gray-100 text-gray-500"
+                          ? "bg-md-teal/20 text-md-teal"
+                          : "bg-white/10 text-white/50"
                       }`}
                     >
                       {client.clerkUserId ? "Vinculado" : "Sin reclamar"}
@@ -282,7 +264,7 @@ export default async function AdminClientsPage({
                       <input type="hidden" name="clientId" value={client.id} />
                       <button
                         type="submit"
-                        className="rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-100"
+                        className="rounded-full border border-white/20 px-3 py-1 text-xs text-white transition-colors hover:bg-white/10"
                       >
                         Entrar como cliente
                       </button>
@@ -294,7 +276,7 @@ export default async function AdminClientsPage({
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-4 py-6 text-center text-sm text-gray-500"
+                    className="px-4 py-6 text-center text-sm text-md-admin-rose-muted"
                   >
                     No se encontraron clientes.
                   </td>
@@ -305,7 +287,7 @@ export default async function AdminClientsPage({
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between text-sm text-gray-500">
+          <div className="admin-subtle flex items-center justify-between text-sm">
             <span>
               Página {page} de {totalPages} · {total} cliente{total === 1 ? "" : "s"}
             </span>
@@ -313,7 +295,7 @@ export default async function AdminClientsPage({
               {page > 1 && (
                 <Link
                   href={pageQuery(page - 1)}
-                  className="rounded-full border border-gray-300 px-3 py-1.5 text-xs text-gray-700 transition-colors hover:bg-gray-100"
+                  className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/10"
                 >
                   ← Anterior
                 </Link>
@@ -321,7 +303,7 @@ export default async function AdminClientsPage({
               {page < totalPages && (
                 <Link
                   href={pageQuery(page + 1)}
-                  className="rounded-full border border-gray-300 px-3 py-1.5 text-xs text-gray-700 transition-colors hover:bg-gray-100"
+                  className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/10"
                 >
                   Siguiente →
                 </Link>
